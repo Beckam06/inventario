@@ -81,6 +81,7 @@ function delete_by_id($table, $id, $id_column = 'id') {
   }
   return false;
 }
+
 /*--------------------------------------------------------------*/
 /* Function for Count id  By table name
 /*--------------------------------------------------------------*/
