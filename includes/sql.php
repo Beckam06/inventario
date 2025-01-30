@@ -234,21 +234,48 @@ function tableExists($table){
         endif;
 
      }
-   /*--------------------------------------------------------------*/
+    
    /* Function for Finding all product name
    /* JOIN with categorie  and media database table
-   /*--------------------------------------------------------------*/
-  function join_product_table(){
-     global $db;
-     $sql  =" SELECT p.id,p.name,p.quantity,p.buy_price,p.sale_price,p.media_id,p.date,c.name";
-    $sql  .=" AS categorie,m.file_name AS image";
-    $sql  .=" FROM products p";
-    $sql  .=" LEFT JOIN categories c ON c.id = p.categorie_id";
-    $sql  .=" LEFT JOIN media m ON m.id = p.media_id";
-    $sql  .=" ORDER BY p.id ASC";
+   /--------------------------------------------------------------*/
+   
+   function join_product_table() {
+    global $db;
+    $sql  = "SELECT p.id_producto, p.nombreProducto, p.marca, p.modelo, p.descripcion, p.garantia, p.precio, p.proveedor, c.categoria AS categorie";
+    $sql .= " FROM producto p";
+    $sql .= " LEFT JOIN categoria c ON c.id_categoria = p.id_categoria";
+    $sql .= " ORDER BY p.id_producto ASC";
     return find_by_sql($sql);
+}
+/*
+     /--------------------------------------------------------------/
+/* Function for Searching products by id or name
+/--------------------------------------------------------------/*/
 
-   }
+function search_product_table($search) {
+  global $db;
+  $sql  = "SELECT p.id_producto, p.nombreProducto, p.marca, p.modelo, p.descripcion, p.garantia, p.precio, p.proveedor, c.categoria AS categorie";
+  $sql .= " FROM producto p";
+  $sql .= " LEFT JOIN categoria c ON c.id_categoria = p.id_categoria";
+  $sql .= " WHERE p.id_producto LIKE '%{$db->escape($search)}%' OR p.nombreProducto LIKE '%{$db->escape($search)}%'";
+  $sql .= " ORDER BY p.id_producto ASC";
+  return find_by_sql($sql);
+}
+    
+
+/* Function for Finding product with category by id
+/--------------------------------------------------------------/
+*/
+
+function find_product_with_category($product_id) {
+  global $db;
+  $sql  = "SELECT p.*, c.categoria FROM producto p";
+  $sql .= " LEFT JOIN categoria c ON c.id_categoria = p.id_categoria";
+  $sql .= " WHERE p.id_producto = '{$db->escape($product_id)}' LIMIT 1";
+  $result = find_by_sql($sql);
+  return !empty($result) ? $result[0] : null;
+}
+
   /*--------------------------------------------------------------*/
   /* Function for Finding all product name
   /* Request coming from ajax.php for auto suggest

@@ -2,47 +2,43 @@
   $page_title = 'Agregar producto';
   require_once('includes/load.php');
   // Checkin What level user has permission to view this page
-  page_require_level(2);
-  $all_categories = find_all('categories');
-  $all_photo = find_all('media');
+  page_require_level(1);
+  $all_categories = find_all('categoria');
+  $new_product = null;
 ?>
 <?php
  if(isset($_POST['add_product'])){
-   $req_fields = array('product-title','product-categorie','product-quantity','buying-price', 'saleing-price' );
+   $req_fields = array('nombreProducto', 'marca', 'modelo', 'descripcion', 'garantia', 'precio', 'proveedor', 'id_categoria');
    validate_fields($req_fields);
+   $p_name  = remove_junk($db->escape($_POST['nombreProducto']));
+   $p_brand = remove_junk($db->escape($_POST['marca']));
+   $p_model = remove_junk($db->escape($_POST['modelo']));
+   $p_desc  = remove_junk($db->escape($_POST['descripcion']));
+   $p_warranty = remove_junk($db->escape($_POST['garantia']));
+   $p_price = remove_junk($db->escape($_POST['precio']));
+   $p_supplier = remove_junk($db->escape($_POST['proveedor']));
+   $p_cat   = remove_junk($db->escape($_POST['id_categoria']));
    if(empty($errors)){
-     $p_name  = remove_junk($db->escape($_POST['product-title']));
-     $p_cat   = remove_junk($db->escape($_POST['product-categorie']));
-     $p_qty   = remove_junk($db->escape($_POST['product-quantity']));
-     $p_buy   = remove_junk($db->escape($_POST['buying-price']));
-     $p_sale  = remove_junk($db->escape($_POST['saleing-price']));
-     if (is_null($_POST['product-photo']) || $_POST['product-photo'] === "") {
-       $media_id = '0';
-     } else {
-       $media_id = remove_junk($db->escape($_POST['product-photo']));
-     }
-     $date    = make_date();
-     $query  = "INSERT INTO products (";
-     $query .=" name,quantity,buy_price,sale_price,categorie_id,media_id,date";
+     $query  = "INSERT INTO producto (";
+     $query .=" nombreProducto, marca, modelo, descripcion, garantia, precio, proveedor, id_categoria";
      $query .=") VALUES (";
-     $query .=" '{$p_name}', '{$p_qty}', '{$p_buy}', '{$p_sale}', '{$p_cat}', '{$media_id}', '{$date}'";
+     $query .=" '{$p_name}', '{$p_brand}', '{$p_model}', '{$p_desc}', '{$p_warranty}', '{$p_price}', '{$p_supplier}', '{$p_cat}'";
      $query .=")";
-     $query .=" ON DUPLICATE KEY UPDATE name='{$p_name}'";
+     $query .=" ON DUPLICATE KEY UPDATE nombreProducto='{$p_name}'";
+     
      if($db->query($query)){
        $session->msg('s',"Producto agregado exitosamente. ");
-       redirect('add_product.php', false);
+       $new_product_id = $db->insert_id();
+       $new_product = find_product_with_category($new_product_id);
      } else {
        $session->msg('d',' Lo siento, registro falló.');
-       redirect('product.php', false);
+       redirect('add_product.php', false);
      }
-
-   } else{
+   } else {
      $session->msg("d", $errors);
      redirect('add_product.php',false);
    }
-
  }
-
 ?>
 <?php include_once('layouts/header.php'); ?>
 <div class="row">
@@ -67,61 +63,69 @@
                   <span class="input-group-addon">
                    <i class="glyphicon glyphicon-th-large"></i>
                   </span>
-                  <input type="text" class="form-control" name="product-title" placeholder="Descripción">
+                  <input type="text" class="form-control" name="nombreProducto" placeholder="Nombre del producto">
+               </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <span class="input-group-addon">
+                   <i class="glyphicon glyphicon-th-large"></i>
+                  </span>
+                  <input type="text" class="form-control" name="marca" placeholder="Marca">
+               </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <span class="input-group-addon">
+                   <i class="glyphicon glyphicon-th-large"></i>
+                  </span>
+                  <input type="text" class="form-control" name="modelo" placeholder="Modelo">
+               </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <span class="input-group-addon">
+                   <i class="glyphicon glyphicon-th-large"></i>
+                  </span>
+                  <input type="text" class="form-control" name="descripcion" placeholder="Descripción">
+               </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <span class="input-group-addon">
+                   <i class="glyphicon glyphicon-th-large"></i>
+                  </span>
+                  <input type="text" class="form-control" name="garantia" placeholder="Garantía">
+               </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <span class="input-group-addon">
+                   <i class="glyphicon glyphicon-th-large"></i>
+                  </span>
+                  <input type="text" class="form-control" name="precio" placeholder="Precio">
+               </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <span class="input-group-addon">
+                   <i class="glyphicon glyphicon-th-large"></i>
+                  </span>
+                  <input type="text" class="form-control" name="proveedor" placeholder="Proveedor">
                </div>
               </div>
               <div class="form-group">
                 <div class="row">
                   <div class="col-md-6">
-                    <select class="form-control" name="product-categorie">
+                    <select class="form-control" name="id_categoria" required>
                       <option value="">Selecciona una categoría</option>
                     <?php  foreach ($all_categories as $cat): ?>
-                      <option value="<?php echo (int)$cat['id'] ?>">
-                        <?php echo $cat['name'] ?></option>
-                    <?php endforeach; ?>
-                    </select>
-                  </div>
-                  <div class="col-md-6">
-                    <select class="form-control" name="product-photo">
-                      <option value="">Selecciona una imagen</option>
-                    <?php  foreach ($all_photo as $photo): ?>
-                      <option value="<?php echo (int)$photo['id'] ?>">
-                        <?php echo $photo['file_name'] ?></option>
+                      <option value="<?php echo (int)$cat['id_categoria'] ?>">
+                        <?php echo $cat['categoria'] ?></option>
                     <?php endforeach; ?>
                     </select>
                   </div>
                 </div>
-              </div>
-
-              <div class="form-group">
-               <div class="row">
-                 <div class="col-md-4">
-                   <div class="input-group">
-                     <span class="input-group-addon">
-                      <i class="glyphicon glyphicon-shopping-cart"></i>
-                     </span>
-                     <input type="number" class="form-control" name="product-quantity" placeholder="Cantidad">
-                  </div>
-                 </div>
-                 <div class="col-md-4">
-                   <div class="input-group">
-                     <span class="input-group-addon">
-                       <i class="glyphicon glyphicon-usd"></i>
-                     </span>
-                     <input type="number" class="form-control" name="buying-price" placeholder="Precio de compra">
-                     <span class="input-group-addon">.00</span>
-                  </div>
-                 </div>
-                  <div class="col-md-4">
-                    <div class="input-group">
-                      <span class="input-group-addon">
-                        <i class="glyphicon glyphicon-usd"></i>
-                      </span>
-                      <input type="number" class="form-control" name="saleing-price" placeholder="Precio de venta">
-                      <span class="input-group-addon">.00</span>
-                   </div>
-                  </div>
-               </div>
               </div>
               <button type="submit" name="add_product" class="btn btn-danger">Agregar producto</button>
           </form>
@@ -130,5 +134,49 @@
       </div>
     </div>
   </div>
+  <?php if ($new_product): ?>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <strong>
+            <span class="glyphicon glyphicon-th"></span>
+            <span>Producto agregado</span>
+         </strong>
+        </div>
+        <div class="panel-body">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th class="text-center" style="width: 50px;">#</th>
+                <th> Nombre del Producto </th>
+                <th> Marca </th>
+                <th> Modelo </th>
+                <th> Descripción </th>
+                <th> Garantía </th>
+                <th> Precio </th>
+                <th> Proveedor </th>
+                <th> Categoría </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-center"><?php echo count_id();?></td>
+                <td> <?php echo remove_junk($new_product['nombreProducto']); ?></td>
+                <td> <?php echo remove_junk($new_product['marca']); ?></td>
+                <td> <?php echo remove_junk($new_product['modelo']); ?></td>
+                <td> <?php echo remove_junk($new_product['descripcion']); ?></td>
+                <td> <?php echo remove_junk($new_product['garantia']); ?></td>
+                <td> <?php echo remove_junk($new_product['precio']); ?></td>
+                <td> <?php echo remove_junk($new_product['proveedor']); ?></td>
+                <td> <?php echo remove_junk($new_product['categoria']); ?></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <?php endif; ?>
 
 <?php include_once('layouts/footer.php'); ?>
