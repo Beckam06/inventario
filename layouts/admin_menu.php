@@ -27,6 +27,15 @@
   </li>
   <li>
     <a href="#" class="submenu-toggle">
+      <i class="glyphicon glyphicon-indent-left"></i>
+      <span>Inventario</span>
+    </a>
+    <ul class="nav submenu">
+      <li><a href="inventario.php">Administrar inventario</a> </li>
+   </ul>
+  </li>
+  <li>
+    <a href="#" class="submenu-toggle">
       <i class="glyphicon glyphicon-th-large"></i>
       <span>Productos</span>
     </a>
