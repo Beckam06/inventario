@@ -42,7 +42,6 @@
                 <th> Marca </th>
                 <th> Modelo </th>
                 <th> Descripción </th>
-                <th> Cantidad </th>
                 <th> Garantía </th>
                 <th> Precio </th>
                 <th> Proveedor </th>
@@ -58,7 +57,6 @@
                 <td> <?php echo remove_junk($product['marca']); ?></td>
                 <td> <?php echo remove_junk($product['modelo']); ?></td>
                 <td> <?php echo remove_junk($product['descripcion']); ?></td>
-                <td> <?php echo remove_junk($product['cantidad']); ?></td>
                 <td> <?php echo remove_junk($product['garantia']); ?></td>
                 <td> <?php echo remove_junk($product['precio']); ?></td>
                 <td> <?php echo remove_junk($product['proveedor']); ?></td>
