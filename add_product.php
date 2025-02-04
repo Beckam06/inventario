@@ -8,21 +8,22 @@
 ?>
 <?php
  if(isset($_POST['add_product'])){
-   $req_fields = array('nombreProducto', 'marca', 'modelo', 'descripcion', 'garantia', 'precio', 'proveedor', 'id_categoria');
+   $req_fields = array('nombreProducto', 'marca', 'modelo', 'descripcion', 'cantidad', 'garantia', 'precio', 'proveedor', 'id_categoria');
    validate_fields($req_fields);
    $p_name  = remove_junk($db->escape($_POST['nombreProducto']));
    $p_brand = remove_junk($db->escape($_POST['marca']));
    $p_model = remove_junk($db->escape($_POST['modelo']));
    $p_desc  = remove_junk($db->escape($_POST['descripcion']));
+   $p_quantity = remove_junk($db->escape($_POST['cantidad']));
    $p_warranty = remove_junk($db->escape($_POST['garantia']));
    $p_price = remove_junk($db->escape($_POST['precio']));
    $p_supplier = remove_junk($db->escape($_POST['proveedor']));
    $p_cat   = remove_junk($db->escape($_POST['id_categoria']));
    if(empty($errors)){
      $query  = "INSERT INTO producto (";
-     $query .=" nombreProducto, marca, modelo, descripcion, garantia, precio, proveedor, id_categoria";
+     $query .=" nombreProducto, marca, modelo, descripcion, cantidad, garantia, precio, proveedor, id_categoria";
      $query .=") VALUES (";
-     $query .=" '{$p_name}', '{$p_brand}', '{$p_model}', '{$p_desc}', '{$p_warranty}', '{$p_price}', '{$p_supplier}', '{$p_cat}'";
+     $query .=" '{$p_name}', '{$p_brand}', '{$p_model}', '{$p_desc}', '{$p_quantity}', '{$p_warranty}', '{$p_price}', '{$p_supplier}', '{$p_cat}'";
      $query .=")";
      $query .=" ON DUPLICATE KEY UPDATE nombreProducto='{$p_name}'";
      
@@ -95,6 +96,14 @@
                   <span class="input-group-addon">
                    <i class="glyphicon glyphicon-th-large"></i>
                   </span>
+                  <input type="number" class="form-control" name="cantidad" placeholder="Cantidad">
+               </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <span class="input-group-addon">
+                   <i class="glyphicon glyphicon-th-large"></i>
+                  </span>
                   <input type="text" class="form-control" name="garantia" placeholder="Garantía">
                </div>
               </div>
@@ -103,7 +112,7 @@
                   <span class="input-group-addon">
                    <i class="glyphicon glyphicon-th-large"></i>
                   </span>
-                  <input type="text" class="form-control" name="precio" placeholder="Precio">
+                  <input type="number" step="0.01" class="form-control" name="precio" placeholder="Precio">
                </div>
               </div>
               <div class="form-group">
@@ -153,6 +162,7 @@
                 <th> Marca </th>
                 <th> Modelo </th>
                 <th> Descripción </th>
+                <th> Cantidad </th>
                 <th> Garantía </th>
                 <th> Precio </th>
                 <th> Proveedor </th>
@@ -166,6 +176,7 @@
                 <td> <?php echo remove_junk($new_product['marca']); ?></td>
                 <td> <?php echo remove_junk($new_product['modelo']); ?></td>
                 <td> <?php echo remove_junk($new_product['descripcion']); ?></td>
+                <td> <?php echo remove_junk($new_product['cantidad']); ?></td>
                 <td> <?php echo remove_junk($new_product['garantia']); ?></td>
                 <td> <?php echo remove_junk($new_product['precio']); ?></td>
                 <td> <?php echo remove_junk($new_product['proveedor']); ?></td>

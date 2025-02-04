@@ -47,10 +47,10 @@ function find_by_id($table, $id, $id_column = 'id') {
         if ($result && $db->num_rows($result) > 0) {
             return $db->fetch_assoc($result);
         } else {
-            return null;
+            return false;
         }
     }
-    return null;
+    return false;
 }
 /*--------------------------------------------------------------*/
 /* Function for Delete data from table by id
@@ -242,7 +242,7 @@ function tableExists($table){
    
    function join_product_table() {
     global $db;
-    $sql  = "SELECT p.id_producto, p.nombreProducto, p.marca, p.modelo, p.descripcion, p.garantia, p.precio, p.proveedor, c.categoria AS categorie";
+    $sql  = "SELECT p.id_producto, p.nombreProducto, p.marca, p.modelo, p.descripcion, p.cantidad, p.garantia, p.precio, p.proveedor, c.categoria AS categorie";
     $sql .= " FROM producto p";
     $sql .= " LEFT JOIN categoria c ON c.id_categoria = p.id_categoria";
     $sql .= " ORDER BY p.id_producto ASC";
@@ -255,7 +255,7 @@ function tableExists($table){
 
 function search_product_table($search) {
   global $db;
-  $sql  = "SELECT p.id_producto, p.nombreProducto, p.marca, p.modelo, p.descripcion, p.garantia, p.precio, p.proveedor, c.categoria AS categorie";
+  $sql  = "SELECT p.id_producto, p.nombreProducto, p.marca, p.modelo, p.descripcion, p.cantidad, p.garantia, p.precio, p.proveedor, c.categoria AS categorie";
   $sql .= " FROM producto p";
   $sql .= " LEFT JOIN categoria c ON c.id_categoria = p.id_categoria";
   $sql .= " WHERE p.id_producto LIKE '%{$db->escape($search)}%' OR p.nombreProducto LIKE '%{$db->escape($search)}%'";
