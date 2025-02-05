@@ -7,7 +7,7 @@ page_require_level(1);
 $id_categoria = (int)$_GET['id_categoria'];
 
 // Obtener la categoría
-$categoria = find_by_id('categoria', $id_categoria);
+$categoria = find_by_id('categoria', $id_categoria, 'id_categoria');
 
 // Obtener todos los cubículos
 $all_cubiculos = find_all('cubiculos');
@@ -71,7 +71,7 @@ if (isset($_POST['asignar_cubiculos'])) {
                             <?php foreach ($all_cubiculos as $cubiculo): ?>
                                 <tr>
                                     <td><?php echo count_id(); ?></td>
-                                    <td><?php echo remove_junk(ucfirst($cubiculo['nombre_cubiculo'])); ?></td>
+                                    <td><?php echo remove_junk(ucfirst($cubiculo['cubiculo'])); ?></td>
                                     <td>
                                         <input type="checkbox" name="cubiculos[]" value="<?php echo $cubiculo['id_cubiculo']; ?>"
                                             <?php if (in_array($cubiculo, $cubiculos_asignados)) echo "checked"; ?>>
