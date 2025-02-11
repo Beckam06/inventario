@@ -1,5 +1,11 @@
 <?php $user = current_user(); ?>
 <!DOCTYPE html>
+
+<!-- En el head de tu HTML -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- Al final del body, antes de cerrar </body> -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <html lang="en">
     <head>
     <meta charset="UTF-8">
