@@ -3,6 +3,9 @@ $page_title = 'Lista de categorías';
 require_once('includes/load.php');
 page_require_level(1);
 
+// Establecer la zona horaria
+date_default_timezone_set('America/Tegucigalpa'); 
+
 $all_categoria = find_all('categoria');
 $all_cubiculos = find_all('cubiculos'); // Obtener todos los cubículos
 

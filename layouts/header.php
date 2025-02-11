@@ -15,7 +15,12 @@
     <link rel="stylesheet" href="libs/css/main.css" />
   </head>
   <body>
-  <?php  if ($session->isUserLoggedIn(true)): ?>
+    
+  <?php 
+  // Establecer la zona horaria
+  date_default_timezone_set('America/Tegucigalpa'); 
+  
+   if ($session->isUserLoggedIn(true)): ?>
     <header id="header">
       <div class="logo pull-left"> OSWA - Inventory </div>
       <div class="header-content">

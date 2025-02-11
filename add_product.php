@@ -8,7 +8,7 @@
 ?>
 <?php
  if(isset($_POST['add_product'])){
-   $req_fields = array('nombreProducto', 'marca', 'modelo', 'descripcion', 'cantidad', 'garantia', 'precio', 'proveedor', 'id_categoria');
+   $req_fields = array('nombreProducto', 'marca', 'modelo', 'descripcion', 'cantidad', 'garantia', 'precio', 'proveedor', 'id_categoria', 'fechaIngreso', 'stock_minimo');
    validate_fields($req_fields);
    $p_name  = remove_junk($db->escape($_POST['nombreProducto']));
    $p_brand = remove_junk($db->escape($_POST['marca']));
@@ -19,13 +19,14 @@
    $p_price = remove_junk($db->escape($_POST['precio']));
    $p_supplier = remove_junk($db->escape($_POST['proveedor']));
    $p_cat   = remove_junk($db->escape($_POST['id_categoria']));
+   $p_date  = remove_junk($db->escape($_POST['fechaIngreso']));
+   $p_stock_min = remove_junk($db->escape($_POST['stock_minimo']));
    if(empty($errors)){
      $query  = "INSERT INTO producto (";
-     $query .=" nombreProducto, marca, modelo, descripcion, cantidad, garantia, precio, proveedor, id_categoria";
+     $query .=" nombreProducto, marca, modelo, descripcion, cantidad, garantia, precio, proveedor, id_categoria, fechaIngreso, stock_minimo";
      $query .=") VALUES (";
-     $query .=" '{$p_name}', '{$p_brand}', '{$p_model}', '{$p_desc}', '{$p_quantity}', '{$p_warranty}', '{$p_price}', '{$p_supplier}', '{$p_cat}'";
+     $query .=" '{$p_name}', '{$p_brand}', '{$p_model}', '{$p_desc}', '{$p_quantity}', '{$p_warranty}', '{$p_price}', '{$p_supplier}', '{$p_cat}', '{$p_date}', '{$p_stock_min}'";
      $query .=")";
-     $query .=" ON DUPLICATE KEY UPDATE nombreProducto='{$p_name}'";
      
      if($db->query($query)){
        $session->msg('s',"Producto agregado exitosamente. ");
@@ -136,6 +137,22 @@
                   </div>
                 </div>
               </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <span class="input-group-addon">
+                   <i class="glyphicon glyphicon-calendar"></i>
+                  </span>
+                  <input type="date" class="form-control" name="fechaIngreso" placeholder="Fecha de Ingreso">
+               </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <span class="input-group-addon">
+                   <i class="glyphicon glyphicon-exclamation-sign"></i>
+                  </span>
+                  <input type="number" class="form-control" name="stock_minimo" placeholder="Stock Mínimo">
+               </div>
+              </div>
               <button type="submit" name="add_product" class="btn btn-danger">Agregar producto</button>
           </form>
          </div>
@@ -167,6 +184,8 @@
                 <th> Precio </th>
                 <th> Proveedor </th>
                 <th> Categoría </th>
+                <th> Fecha de Ingreso </th>
+                <th> Stock Minimo </th>
               </tr>
             </thead>
             <tbody>
@@ -181,6 +200,8 @@
                 <td> <?php echo remove_junk($new_product['precio']); ?></td>
                 <td> <?php echo remove_junk($new_product['proveedor']); ?></td>
                 <td> <?php echo remove_junk($new_product['categoria']); ?></td>
+                <td> <?php echo remove_junk($new_product['fechaIngreso']); ?></td>
+                <td?><?php echo remove_junk($new_product['stock_minimo']); ?></td>
               </tr>
             </tbody>
           </table>

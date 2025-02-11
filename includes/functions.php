@@ -120,5 +120,15 @@ function randString($length = 5)
   return $str;
 }
 
+/*--------------------------------------------------------------*/
+/* Function for Counting total products
+/*--------------------------------------------------------------*/
+function count_total_products() {
+    global $db;
+    $sql = "SELECT COUNT(id_producto) AS total FROM producto";
+    $result = $db->query($sql);
+    $row = $db->fetch_assoc($result);
+    return $row['total'];
+}
 
 ?>
