@@ -55,11 +55,12 @@ $solicitudes = $db->query($sql);
                                     <!-- Botón para abrir el modal -->
                                     <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalProducto<?php echo $solicitud['id_producto']; ?>">
                                         <span class="glyphicon glyphicon-eye-open"></span> Ver Producto
-                                    </button>
-                                    <!-- Botón para marcar como recibido -->
-                                    <button type="button" class="btn btn-success btn-xs" data-toggle="modal" data-target="#modalRecibido<?php echo $solicitud['id_solicitudCompra']; ?>">
+                                        <td>
+                                    <a href="marcar_recibido.php?id=<?php echo $solicitud['id_solicitudCompra']; ?>" 
+                                    class="btn btn-success btn-xs">
                                         <span class="glyphicon glyphicon-ok"></span> Marcar como Recibido
-                                    </button>
+                                    </a>
+                               
                                 </td>
                             </tr>
                             <!-- Modal para ampliar la información del producto -->

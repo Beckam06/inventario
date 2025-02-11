@@ -409,4 +409,17 @@ function  monthlySales($year){
   return find_by_sql($sql);
 }
 
+
+/*--------------------------------------------------------------*/
+/* FUNCION PARA ARCHIVOS
+/*--------------------------------------------------------------
+
+
+function find_by_producto($table, $id_producto) {
+  global $db;
+  $sql = "SELECT * FROM {$table} WHERE id_producto = {$id_producto}";
+  $result = $db->query($sql);
+  return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+}*/
+
 ?>

@@ -51,7 +51,7 @@ if (isset($_POST['search']) || isset($_GET['search'])) {
                             <th> Precio </th>
                             <th> Proveedor </th>
                             <th> Categoría </th>
-                            <th class="text-center" style="width: 100px;"> Acciones </th>
+                            <th class="text-center" style="width: 150px;"> Acciones </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -80,6 +80,10 @@ if (isset($_POST['search']) || isset($_GET['search'])) {
                                                 <span class="glyphicon glyphicon-shopping-cart"></span>
                                             </a>
                                         <?php endif; ?>
+                                        <!-- Botón para ver detalles de garantías, órdenes y facturas -->
+                                        <a href="detalles_producto.php?id=<?php echo (int)$product['id_producto']; ?>" class="btn btn-warning btn-xs" title="Ver Detalles" data-toggle="tooltip">
+                                            <span class="glyphicon glyphicon-list-alt"></span>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>
