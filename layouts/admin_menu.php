@@ -22,7 +22,7 @@
     </a>
     <ul class="nav submenu">
        <li><a href="categorie.php">Agregar categoria</a> </li>
-       <li><a href="add_product.php">Asignar cubículo</a> </li>
+       <li><a href="cubiculo.php">Asignar cubículo</a> </li>
    </ul>
   </li>
   <li>
@@ -51,14 +51,19 @@
     </a>
   </li>
   <li>
-    <a href="#" class="submenu-toggle">
+    <a href="lista_pedidos.php">
       <i class="glyphicon glyphicon-th-list"></i>
-       <span>Ventas</span>
+       <span>Lista de pedidos</span>
       </a>
-      <ul class="nav submenu">
-         <li><a href="sales.php">Administrar ventas</a> </li>
-         <li><a href="add_sale.php">Agregar venta</a> </li>
-     </ul>
+      
+  </li>
+
+  <li>
+    <a href="historial_solicitudes.php">
+      <i class="glyphicon glyphicon-th-list"></i>
+       <span>Historial Solicitudes</span>
+      </a>
+      
   </li>
   <li>
     <a href="#" class="submenu-toggle">

@@ -120,6 +120,12 @@ function randString($length = 5)
   return $str;
 }
 
+function find_by_producto($table, $id_producto) {
+  global $db;
+  $sql = "SELECT * FROM {$table} WHERE id_producto = {$id_producto}";
+  return $db->query($sql)->fetch_all(MYSQLI_ASSOC);
+}
+
 /*--------------------------------------------------------------*/
 /* Function for Counting total products
 /*--------------------------------------------------------------*/

@@ -6,7 +6,22 @@ page_require_level(1);
 // Establecer la zona horaria
 date_default_timezone_set('America/Tegucigalpa'); 
 
-$all_categoria = find_all('categoria');
+// Configuración de la paginación
+$registros_por_pagina = 5; // Número de registros por página
+$pagina_actual = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1; // Página actual, por defecto es 1
+$offset = ($pagina_actual - 1) * $registros_por_pagina;
+
+// Consulta paginada para obtener las categorías
+$sql = "SELECT * FROM categoria LIMIT {$registros_por_pagina} OFFSET {$offset}";
+$all_categoria = find_by_sql($sql);
+
+// Obtener el total de registros para calcular el número total de páginas
+$sql_total = "SELECT COUNT(*) AS total FROM categoria";
+$resultado_total = $db->query($sql_total);
+$fila_total = $db->fetch_assoc($resultado_total);
+$total_registros = $fila_total['total'];
+$total_paginas = ceil($total_registros / $registros_por_pagina);
+
 $all_cubiculos = find_all('cubiculos'); // Obtener todos los cubículos
 
 // Procesar el formulario para agregar una nueva categoría
@@ -147,42 +162,24 @@ if (isset($_POST['update_cubiculos'])) {
                                     </div>
                                 </td>
                             </tr>
-
-                            <!-- Modal para gestionar cubículos -->
-                            <div class="modal fade" id="modalCubiculos<?php echo $cat['id_categoria']; ?>" tabindex="-1" role="dialog" aria-labelledby="modalCubiculosLabel">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                            <h4 class="modal-title" id="modalCubiculosLabel">Gestionar Cubículos para <?php echo $cat['categoria']; ?></h4>
-                                        </div>
-                                        <div class="modal-body">
-                                            <form method="post" action="categorie.php">
-                                                <input type="hidden" name="id_categoria" value="<?php echo $cat['id_categoria']; ?>">
-                                                <?php foreach ($all_cubiculos as $cubiculo): ?>
-                                                    <?php
-                                                    $asignado = find_by_sql("
-                                                        SELECT * 
-                                                        FROM categoria_cubiculo 
-                                                        WHERE id_categoria = {$cat['id_categoria']} 
-                                                        AND id_cubiculo = {$cubiculo['id_cubiculo']}
-                                                    ");
-                                                    $checked = !empty($asignado) ? 'checked' : '';
-                                                    ?>
-                                                    <div>
-                                                        <input type="checkbox" name="cubiculos[]" value="<?php echo $cubiculo['id_cubiculo']; ?>" <?php echo $checked; ?>>
-                                                        <?php echo $cubiculo['cubiculo']; ?>
-                                                    </div>
-                                                <?php endforeach; ?>
-                                                <button type="submit" name="update_cubiculos" class="btn btn-primary">Guardar</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+
+                <!-- Paginación -->
+                <div class="paginacion">
+                    <?php if ($pagina_actual > 1): ?>
+                        <a href="?pagina=<?php echo $pagina_actual - 1; ?>" class="btn btn-primary">Anterior</a>
+                    <?php endif; ?>
+
+                    <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
+                        <a href="?pagina=<?php echo $i; ?>" class="btn btn-default <?php echo ($i == $pagina_actual) ? 'active' : ''; ?>"><?php echo $i; ?></a>
+                    <?php endfor; ?>
+
+                    <?php if ($pagina_actual < $total_paginas): ?>
+                        <a href="?pagina=<?php echo $pagina_actual + 1; ?>" class="btn btn-primary">Siguiente</a>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
     </div>

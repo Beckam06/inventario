@@ -104,6 +104,29 @@ public function while_loop($loop){
  return $results;
 }
 
+ // Método para iniciar una transacción
+ public function begin_transaction() {
+  $this->con->begin_transaction();
+}
+
+// Método para confirmar una transacción
+public function commit() {
+  $this->con->commit();
+}
+
+// Método para revertir una transacción
+public function rollback() {
+  $this->con->rollback();
+}
+
+// Método para ejecutar consultas
+
+
+// Método para obtener la conexión
+public function get_db_connection() {
+  return $this->con;
+}
+
 }
 
 $db = new MySqli_DB();
