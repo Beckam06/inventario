@@ -47,7 +47,7 @@ if (isset($_POST['search']) || isset($_GET['search'])) {
                             <th> Modelo </th>
                             <th> Descripción </th>
                             <th> Cantidad </th>
-                            <th> Garantía </th>
+                            
                             <th> Precio </th>
                             <th> Proveedor </th>
                             <th> Categoría </th>
@@ -63,7 +63,7 @@ if (isset($_POST['search']) || isset($_GET['search'])) {
                                 <td> <?php echo remove_junk($product['modelo']); ?></td>
                                 <td> <?php echo remove_junk($product['descripcion']); ?></td>
                                 <td class="<?php echo ($product['cantidad'] < 3) ? 'low-stock' : ''; ?>"> <?php echo remove_junk($product['cantidad']); ?></td>
-                                <td> <?php echo remove_junk($product['garantia']); ?></td>
+                               
                                 <td> <?php echo remove_junk($product['precio']); ?></td>
                                 <td> <?php echo remove_junk($product['proveedor']); ?></td>
                                 <td> <?php echo remove_junk($product['categorie']); ?></td>
