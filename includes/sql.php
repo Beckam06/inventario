@@ -255,7 +255,7 @@ function tableExists($table){
 
 function search_product_table($search) {
   global $db;
-  $sql  = "SELECT p.id_producto, p.nombreProducto, p.marca, p.modelo, p.descripcion, p.cantidad, p.garantia, p.precio, p.proveedor, c.categoria AS categorie";
+  $sql  = "SELECT p.id_producto, p.nombreProducto, p.marca, p.modelo, p.descripcion, p.cantidad, p.garantia, p.precio, p.proveedor, c.categoria AS categorie, p.fechaIngreso, p.stock_minimo";
   $sql .= " FROM producto p";
   $sql .= " LEFT JOIN categoria c ON c.id_categoria = p.id_categoria";
   $sql .= " WHERE p.id_producto LIKE '%{$db->escape($search)}%' OR p.nombreProducto LIKE '%{$db->escape($search)}%'";

@@ -3,6 +3,9 @@ $page_title = 'Lista de categorías';
 require_once('includes/load.php');
 page_require_level(1);
 
+// Establecer la zona horaria
+date_default_timezone_set('America/Tegucigalpa'); 
+
 // Configuración de la paginación
 $registros_por_pagina = 5; // Número de registros por página
 $pagina_actual = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1; // Página actual, por defecto es 1
