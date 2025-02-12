@@ -59,7 +59,6 @@
                 <td> <?php echo remove_junk($product['modelo']); ?></td>
                 <td> <?php echo remove_junk($product['descripcion']); ?></td>
                 <td> <?php echo remove_junk($product['cantidad']); ?></td>
-                <td> <?php echo remove_junk($product['garantia']); ?></td>
                 <td> <?php echo remove_junk($product['precio']); ?></td>
                 <td> <?php echo remove_junk($product['proveedor']); ?></td>
                 <td> <?php echo remove_junk($product['categorie']); ?></td>

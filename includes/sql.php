@@ -39,18 +39,18 @@ function find_by_sql($sql)
 }
 */
 function find_by_id($table, $id, $id_column = 'id') {
-    global $db;
-    $id = (int)$id;
-    if (tableExists($table)) { 
-        $sql = "SELECT * FROM {$db->escape($table)} WHERE {$db->escape($id_column)}='{$db->escape($id)}' LIMIT 1";
-        $result = $db->query($sql);
-        if ($result && $db->num_rows($result) > 0) {
-            return $db->fetch_assoc($result);
-        } else {
-            return false;
-        }
-    }
-    return false;
+  global $db;
+  $id = (int)$id;
+  if (tableExists($table)) { 
+      $sql = "SELECT * FROM {$db->escape($table)} WHERE {$db->escape($id_column)}='{$db->escape($id)}' LIMIT 1";
+      $result = $db->query($sql);
+      if ($result && $db->num_rows($result) > 0) {
+          return $db->fetch_assoc($result);
+      } else {
+          return false; // Devuelve false si no se encuentra el registro
+      }
+  }
+  return false;
 }
 /*--------------------------------------------------------------*/
 /* Function for Delete data from table by id
@@ -242,7 +242,7 @@ function tableExists($table){
    
    function join_product_table() {
     global $db;
-    $sql  = "SELECT p.id_producto, p.nombreProducto, p.marca, p.modelo, p.descripcion, p.cantidad, p.garantia, p.precio, p.proveedor, c.categoria AS categorie";
+    $sql  = "SELECT p.id_producto, p.nombreProducto, p.marca, p.modelo, p.descripcion, p.cantidad,  p.precio, p.proveedor, c.categoria AS categorie";
     $sql .= " FROM producto p";
     $sql .= " LEFT JOIN categoria c ON c.id_categoria = p.id_categoria";
     $sql .= " ORDER BY p.id_producto ASC";
@@ -255,7 +255,7 @@ function tableExists($table){
 
 function search_product_table($search) {
   global $db;
-  $sql  = "SELECT p.id_producto, p.nombreProducto, p.marca, p.modelo, p.descripcion, p.cantidad, p.garantia, p.precio, p.proveedor, c.categoria AS categorie";
+  $sql  = "SELECT p.id_producto, p.nombreProducto, p.marca, p.modelo, p.descripcion, p.cantidad, p.garantia, p.precio, p.proveedor, c.categoria AS categorie, p.fechaIngreso, p.stock_minimo";
   $sql .= " FROM producto p";
   $sql .= " LEFT JOIN categoria c ON c.id_categoria = p.id_categoria";
   $sql .= " WHERE p.id_producto LIKE '%{$db->escape($search)}%' OR p.nombreProducto LIKE '%{$db->escape($search)}%'";
@@ -409,7 +409,69 @@ function  monthlySales($year){
   return find_by_sql($sql);
 }
 
+function generar_pdf_orden_salida($id_orden_salida, $id_solicitud, $id_departamento, $responsable, $cantidad_entregada, $nombre_producto, $marca, $modelo) {
+  try {
+      require_once('tcpdf/tcpdf.php'); // Asegúrate de que la ruta sea correcta
 
+      // Crear la carpeta si no existe
+      $upload_dir = __DIR__ . '/../uploads/ordenes_salida';
+      if (!is_dir($upload_dir)) {
+          mkdir($upload_dir, 0777, true); // Crea la carpeta con permisos de escritura
+      }
+
+      // Crear el PDF
+      $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+      $pdf->SetCreator(PDF_CREATOR);
+      $pdf->SetAuthor('Sistema de Inventario');
+      $pdf->SetTitle('Nota de Entrega #' . $id_orden_salida);
+      $pdf->SetSubject('Nota de Entrega');
+      $pdf->SetKeywords('Nota, Entrega, Inventario');
+
+      $pdf->AddPage();
+      $pdf->SetFont('helvetica', '', 12);
+
+      // Obtener más detalles del departamento
+      $nombre_departamento = obtener_nombre_departamento($id_departamento);
+
+      // Contenido del PDF
+      $html = '<h1>Nota de Entrega #' . $id_orden_salida . '</h1>';
+      $html .= '<p><strong>Fecha de Entrega:</strong> ' . date('Y-m-d H:i:s') . '</p>';
+      $html .= '<p><strong>Departamento:</strong> ' . $nombre_departamento . '</p>';
+      $html .= '<p><strong>Responsable:</strong> ' . $responsable . '</p>';
+      $html .= '<p><strong>Producto:</strong> ' . $nombre_producto . '</p>';
+      $html .= '<p><strong>Marca:</strong> ' . $marca . '</p>';
+      $html .= '<p><strong>Modelo:</strong> ' . $modelo . '</p>';
+      $html .= '<p><strong>Cantidad Entregada:</strong> ' . $cantidad_entregada . '</p>';
+      $html .= '<p><strong>Nota de Responsabilidad:</strong> El responsable ' . $responsable . ' se hace cargo de los productos entregados.</p>';
+
+      $pdf->writeHTML($html, true, false, true, false, '');
+
+      // Guardar el PDF en la carpeta de uploads
+      $pdf_path = $upload_dir . '/nota_entrega_' . $id_orden_salida . '.pdf';
+      $pdf->Output($pdf_path, 'F');
+
+      // Retornar la ruta relativa para el enlace
+      return 'uploads/ordenes_salida/nota_entrega_' . $id_orden_salida . '.pdf';
+  } catch (Exception $e) {
+      throw new Exception("Error al generar el PDF: " . $e->getMessage());
+  }
+}
+
+
+function obtener_nombre_departamento($id_departamento) {
+  global $db; // Asegúrate de que $db esté disponible en este contexto
+
+  // Consulta para obtener el nombre del departamento
+  $sql = "SELECT nombre_departamento FROM departamento WHERE id_departamento = {$id_departamento} LIMIT 1";
+  $result = $db->query($sql);
+
+  if ($result && $db->num_rows($result) > 0) {
+      $departamento = $db->fetch_assoc($result);
+      return $departamento['nombre_departamento'];
+  }
+
+  return 'Desconocido'; // Si no se encuentra el departamento
+}
 /*--------------------------------------------------------------*/
 /* FUNCION PARA ARCHIVOS
 /*--------------------------------------------------------------

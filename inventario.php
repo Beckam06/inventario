@@ -5,8 +5,11 @@ page_require_level(1);
 
 $search = '';
 $highlight = '';
-if (isset($_POST['search']) || isset($_GET['search'])) {
-    $search = isset($_POST['search']) ? remove_junk($db->escape($_POST['search'])) : remove_junk($db->escape($_GET['search']));
+  $low_stock_alert = false;
+  $low_stock_products = [];
+if (isset($_POST['search']) || isset($_GET['search']) || isset($_GET['highlight'])) {
+    $search = isset($_POST['search']) ? $_POST['search'] : (isset($_GET['search']) ? $_GET['search'] : '');
+    $search = $search ? remove_junk($db->escape($search)) : '';
     $highlight = isset($_GET['highlight']) ? (int)$_GET['highlight'] : '';
     if ($search == '') {
         $products = join_product_table();
@@ -47,7 +50,7 @@ if (isset($_POST['search']) || isset($_GET['search'])) {
                             <th> Modelo </th>
                             <th> Descripción </th>
                             <th> Cantidad </th>
-                            <th> Garantía </th>
+                            
                             <th> Precio </th>
                             <th> Proveedor </th>
                             <th> Categoría </th>
@@ -63,7 +66,7 @@ if (isset($_POST['search']) || isset($_GET['search'])) {
                                 <td> <?php echo remove_junk($product['modelo']); ?></td>
                                 <td> <?php echo remove_junk($product['descripcion']); ?></td>
                                 <td class="<?php echo ($product['cantidad'] < 3) ? 'low-stock' : ''; ?>"> <?php echo remove_junk($product['cantidad']); ?></td>
-                                <td> <?php echo remove_junk($product['garantia']); ?></td>
+                               
                                 <td> <?php echo remove_junk($product['precio']); ?></td>
                                 <td> <?php echo remove_junk($product['proveedor']); ?></td>
                                 <td> <?php echo remove_junk($product['categorie']); ?></td>
@@ -105,6 +108,14 @@ if (isset($_POST['search']) || isset($_GET['search'])) {
         .then(response => response.text())
         .then(data => {
           document.getElementById('product-table').innerHTML = data;
+          // Resaltar productos con stock bajo
+          document.querySelectorAll('#product-table tr').forEach(function(row) {
+            var cantidad = parseInt(row.querySelector('td:nth-child(6)').innerText);
+            var stock_minimo = parseInt(row.querySelector('td:nth-child(12)').innerText);
+            if (cantidad <= stock_minimo) {
+              row.classList.add('low-stock');
+            }
+          });
         });
     } else if (this.value === '') {
       window.location.href = 'inventario.php';
@@ -117,7 +128,13 @@ if (isset($_POST['search']) || isset($_GET['search'])) {
     if (highlight) {
       var element = document.getElementById('product-' + highlight);
       if (element) {
+        element.classList.add('highlight');
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Eliminar el resaltado y el parámetro de la URL después de 3 segundos
+        setTimeout(function() {
+          element.classList.remove('highlight');
+          window.history.replaceState(null, null, window.location.pathname);
+        }, 3000);
       }
     }
   };

@@ -59,6 +59,14 @@
   </li>
 
   <li>
+    <a href="lista_solicitudes_recibidas.php">
+      <i class="glyphicon glyphicon-th-list"></i>
+       <span>Lista de solicitudes</span>
+      </a>
+      
+  </li>
+
+  <li>
     <a href="historial_solicitudes.php">
       <i class="glyphicon glyphicon-th-list"></i>
        <span>Historial Solicitudes</span>
@@ -75,5 +83,14 @@
         <li><a href="monthly_sales.php">Ventas mensuales</a></li>
         <li><a href="daily_sales.php">Ventas diarias</a> </li>
       </ul>
+  </li>
+  <li>
+    <a href="#" class="submenu-toggle">
+      <i class="glyphicon glyphicon-th-list"></i>
+      <span>Reportes Salida</span>
+    </a>
+    <ul class="nav submenu">
+      <li><a href="reporte_salida.php">Ver Reportes</a></li>
+    </ul>
   </li>
 </ul>

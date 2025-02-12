@@ -126,5 +126,15 @@ function find_by_producto($table, $id_producto) {
   return $db->query($sql)->fetch_all(MYSQLI_ASSOC);
 }
 
+/*--------------------------------------------------------------*/
+/* Function for Counting total products
+/*--------------------------------------------------------------*/
+function count_total_products() {
+    global $db;
+    $sql = "SELECT COUNT(id_producto) AS total FROM producto";
+    $result = $db->query($sql);
+    $row = $db->fetch_assoc($result);
+    return $row['total'];
+}
 
 ?>
