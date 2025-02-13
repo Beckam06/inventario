@@ -20,6 +20,7 @@ if (isset($_POST['search']) || isset($_GET['search'])) {
 
 <?php include_once('layouts/header.php'); ?>
 
+
 <div class="row">
     <div class="col-md-12">
         <?php echo display_msg($msg); ?>
@@ -93,42 +94,47 @@ if (isset($_POST['search']) || isset($_GET['search'])) {
             </div>
         </div>
     </div>
-</div>
 
-<?php include_once('layouts/footer.php'); ?>
+    <?php include_once('layouts/footer.php'); ?>
 
-<script>
-  // Búsqueda en tiempo real
-  document.getElementById('search').addEventListener('input', function() {
-    if (this.value.length >= 3) {
-      fetch('search_product.php?query=' + this.value)
-        .then(response => response.text())
-        .then(data => {
-          document.getElementById('product-table').innerHTML = data;
+    <script>
+        // Búsqueda en tiempo real
+        document.getElementById('search').addEventListener('input', function() {
+            if (this.value.length >= 3) {
+                fetch('search_product.php?query=' + this.value)
+                    .then(response => response.text())
+                    .then(data => {
+                        document.getElementById('product-table').innerHTML = data;
+                    });
+            } else if (this.value === '') {
+                window.location.href = 'inventario.php';
+            }
         });
-    } else if (this.value === '') {
-      window.location.href = 'inventario.php';
-    }
-  });
 
-  // Resaltar producto si hay un highlight
-  window.onload = function() {
-    var highlight = "<?php echo $highlight; ?>";
-    if (highlight) {
-      var element = document.getElementById('product-' + highlight);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }
-  };
-</script>
+        // Resaltar producto si hay un highlight
+        window.onload = function() {
+            var highlight = "<?php echo $highlight; ?>";
+            if (highlight) {
+                var element = document.getElementById('product-' + highlight);
+                if (element) {
+                    element.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+            }
+        };
+    </script>
 
-<style>
-  .highlight {
-    background-color: #ffff99;
-  }
-  .low-stock {
-    background-color: #ffcccc; /* Fondo rojo para productos con bajo stock */
-    font-weight: bold; /* Texto en negrita */
-  }
-</style>
+    <style>
+        .highlight {
+            background-color: #ffff99;
+        }
+
+        .low-stock {
+            background-color: #ffcccc;
+            /* Fondo rojo para productos con bajo stock */
+            font-weight: bold;
+            /* Texto en negrita */
+        }
+    </style>

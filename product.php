@@ -1,6 +1,7 @@
 <?php
   $page_title = 'Lista de productos';
   require_once('includes/load.php');
+
   // Checkin What level user has permission to view this page
 
   $search = '';
@@ -77,7 +78,6 @@
              <?php endforeach; ?>
             </tbody>
           </table>
-        </div>
       </div>
     </div>
   </div>
