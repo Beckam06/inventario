@@ -6,7 +6,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 if (isset($_GET['id'])) {
     $id_salida = (int)$_GET['id'];
-    $query = "SELECT s.*, p.nombreProducto, p.marca, p.modelo, p.descripcion, p.cantidad AS cantidad_producto, p.garantia, p.precio, p.proveedor, c.categoria AS categoria, d.nombre_departamento 
+    $query = "SELECT s.*, p.nombreProducto, p.marca, p.modelo, p.descripcion, p.cantidad AS cantidad_producto, p.precio, p.proveedor, c.categoria AS categoria, d.nombre_departamento 
               FROM salida_equipo s 
               JOIN producto p ON s.id_producto = p.id_producto 
               JOIN departamento d ON s.id_departamento = d.id_departamento 
@@ -35,7 +35,6 @@ if (isset($_GET['id'])) {
         $html .= '<tr><td>Modelo</td><td>' . $salida['modelo'] . '</td></tr>';
         $html .= '<tr><td>Descripción</td><td>' . $salida['descripcion'] . '</td></tr>';
         $html .= '<tr><td>Cantidad</td><td>' . $salida['cantidad_salida'] . '</td></tr>';
-        $html .= '<tr><td>Garantía</td><td>' . $salida['garantia'] . '</td></tr>';
         $html .= '<tr><td>Precio</td><td>' . $salida['precio'] . '</td></tr>';
         $html .= '<tr><td>Proveedor</td><td>' . $salida['proveedor'] . '</td></tr>';
         $html .= '<tr><td>Categoría</td><td>' . $salida['categoria'] . '</td></tr>';
@@ -110,10 +109,6 @@ if (isset($_GET['id'])) {
                     <td><?php echo $salida['cantidad_salida']; ?></td>
                   </tr>
                   <tr>
-                    <td>Garantía</td>
-                    <td><?php echo $salida['garantia']; ?></td>
-                  </tr>
-                  <tr>
                     <td>Precio</td>
                     <td><?php echo $salida['precio']; ?></td>
                   </tr>
@@ -179,10 +174,6 @@ if (isset($_GET['id'])) {
                   <tr>
                     <td>Cantidad Salida</td>
                     <td><?php echo $salida['cantidad_salida']; ?></td>
-                  </tr>
-                  <tr>
-                    <td>Garantía</td>
-                    <td><?php echo $salida['garantia']; ?></td>
                   </tr>
                   <tr>
                     <td>Precio</td>

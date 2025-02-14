@@ -80,7 +80,7 @@ $solicitudes = $db->query($sql);
                                                 </div>
                                                 <div class="col-md-6">
                                                     <p><strong>Cantidad en Inventario:</strong> <?php echo remove_junk($solicitud['cantidad']); ?></p>
-                                                    <p><strong>Garantía:</strong> <?php echo remove_junk($solicitud['garantia']); ?></p>
+                                                    <p><strong>Garantía:</strong> <?php echo remove_junk($solicitud['fecha_garantia']); ?></p>
                                                     <p><strong>Precio:</strong> <?php echo remove_junk($solicitud['precio']); ?></p>
                                                     <p><strong>Proveedor:</strong> <?php echo remove_junk($solicitud['proveedor']); ?></p>
                                                     <p><strong>Categoría:</strong> <?php echo remove_junk($solicitud['id_categoria']); ?></p>

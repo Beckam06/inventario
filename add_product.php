@@ -8,24 +8,23 @@
 ?>
 <?php
  if(isset($_POST['add_product'])){
-   $req_fields = array('nombreProducto', 'marca', 'modelo', 'descripcion', 'cantidad', 'garantia', 'precio', 'proveedor', 'id_categoria', 'fechaIngreso', 'stock_minimo');
+   $req_fields = array('nombreProducto', 'marca', 'modelo', 'descripcion', 'cantidad', 'precio', 'proveedor', 'id_categoria', 'stock_minimo');
    validate_fields($req_fields);
+   $p_date  = make_date();
    $p_name  = remove_junk($db->escape($_POST['nombreProducto']));
    $p_brand = remove_junk($db->escape($_POST['marca']));
    $p_model = remove_junk($db->escape($_POST['modelo']));
    $p_desc  = remove_junk($db->escape($_POST['descripcion']));
    $p_quantity = remove_junk($db->escape($_POST['cantidad']));
-   $p_warranty = remove_junk($db->escape($_POST['garantia']));
    $p_price = remove_junk($db->escape($_POST['precio']));
    $p_supplier = remove_junk($db->escape($_POST['proveedor']));
    $p_cat   = remove_junk($db->escape($_POST['id_categoria']));
-   $p_date  = remove_junk($db->escape($_POST['fechaIngreso']));
    $p_stock_min = remove_junk($db->escape($_POST['stock_minimo']));
    if(empty($errors)){
      $query  = "INSERT INTO producto (";
-     $query .=" nombreProducto, marca, modelo, descripcion, cantidad, garantia, precio, proveedor, id_categoria, fechaIngreso, stock_minimo";
+     $query .=" fechaIngreso, nombreProducto, marca, modelo, descripcion, cantidad, precio, proveedor, id_categoria, stock_minimo";
      $query .=") VALUES (";
-     $query .=" '{$p_name}', '{$p_brand}', '{$p_model}', '{$p_desc}', '{$p_quantity}', '{$p_warranty}', '{$p_price}', '{$p_supplier}', '{$p_cat}', '{$p_date}', '{$p_stock_min}'";
+     $query .=" '{$p_date}', '{$p_name}', '{$p_brand}', '{$p_model}', '{$p_desc}', '{$p_quantity}', '{$p_price}', '{$p_supplier}', '{$p_cat}', '{$p_stock_min}'";
      $query .=")";
      
      if($db->query($query)){
@@ -105,14 +104,6 @@
                   <span class="input-group-addon">
                    <i class="glyphicon glyphicon-th-large"></i>
                   </span>
-                  <input type="text" class="form-control" name="garantia" placeholder="Garantía">
-               </div>
-              </div>
-              <div class="form-group">
-                <div class="input-group">
-                  <span class="input-group-addon">
-                   <i class="glyphicon glyphicon-th-large"></i>
-                  </span>
                   <input type="number" step="0.01" class="form-control" name="precio" placeholder="Precio">
                </div>
               </div>
@@ -125,9 +116,17 @@
                </div>
               </div>
               <div class="form-group">
+                <div class="input-group">
+                  <span class="input-group-addon">
+                   <i class="glyphicon glyphicon-exclamation-sign"></i>
+                  </span>
+                  <input type="number" class="form-control" name="stock_minimo" placeholder="Stock Mínimo">
+               </div>
+              </div>
+              <div class="form-group">
                 <div class="row">
                   <div class="col-md-6">
-                    <select class="form-control" name="id_categoria" required>
+                    <select class="form-control" name="id_categoria" id="id_categoria" required>
                       <option value="">Selecciona una categoría</option>
                     <?php  foreach ($all_categories as $cat): ?>
                       <option value="<?php echo (int)$cat['id_categoria'] ?>">
@@ -135,23 +134,12 @@
                     <?php endforeach; ?>
                     </select>
                   </div>
+                  <div class="col-md-6">
+                    <select class="form-control" name="id_cubiculo" id="id_cubiculo">
+                      <option value="">Selecciona un cubículo</option>
+                    </select>
+                  </div>
                 </div>
-              </div>
-              <div class="form-group">
-                <div class="input-group">
-                  <span class="input-group-addon">
-                   <i class="glyphicon glyphicon-calendar"></i>
-                  </span>
-                  <input type="date" class="form-control" name="fechaIngreso" placeholder="Fecha de Ingreso">
-               </div>
-              </div>
-              <div class="form-group">
-                <div class="input-group">
-                  <span class="input-group-addon">
-                   <i class="glyphicon glyphicon-exclamation-sign"></i>
-                  </span>
-                  <input type="number" class="form-control" name="stock_minimo" placeholder="Stock Mínimo">
-               </div>
               </div>
               <button type="submit" name="add_product" class="btn btn-danger">Agregar producto</button>
           </form>
@@ -175,33 +163,33 @@
             <thead>
               <tr>
                 <th class="text-center" style="width: 50px;">#</th>
+                <th> Fecha de Ingreso </th>
                 <th> Nombre del Producto </th>
                 <th> Marca </th>
                 <th> Modelo </th>
                 <th> Descripción </th>
                 <th> Cantidad </th>
-                <th> Garantía </th>
                 <th> Precio </th>
                 <th> Proveedor </th>
                 <th> Categoría </th>
-                <th> Fecha de Ingreso </th>
+                <th> Cubículo </th>
                 <th> Stock Minimo </th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td class="text-center"><?php echo count_id();?></td>
+                <td> <?php echo remove_junk($new_product['fechaIngreso']); ?></td>
                 <td> <?php echo remove_junk($new_product['nombreProducto']); ?></td>
                 <td> <?php echo remove_junk($new_product['marca']); ?></td>
                 <td> <?php echo remove_junk($new_product['modelo']); ?></td>
                 <td> <?php echo remove_junk($new_product['descripcion']); ?></td>
                 <td> <?php echo remove_junk($new_product['cantidad']); ?></td>
-                <td> <?php echo remove_junk($new_product['garantia']); ?></td>
                 <td> <?php echo remove_junk($new_product['precio']); ?></td>
                 <td> <?php echo remove_junk($new_product['proveedor']); ?></td>
                 <td> <?php echo remove_junk($new_product['categoria']); ?></td>
-                <td> <?php echo remove_junk($new_product['fechaIngreso']); ?></td>
-                <td?><?php echo remove_junk($new_product['stock_minimo']); ?></td>
+                <td> <?php echo remove_junk($new_product['cubiculo']); ?></td>
+                <td> <?php echo remove_junk($new_product['stock_minimo']); ?></td>
               </tr>
             </tbody>
           </table>
@@ -212,3 +200,24 @@
   <?php endif; ?>
 
 <?php include_once('layouts/footer.php'); ?>
+<script>
+  document.getElementById('id_categoria').addEventListener('change', function() {
+    var id_categoria = this.value;
+    if (id_categoria) {
+      fetch('get_cubiculos.php?id_categoria=' + id_categoria)
+        .then(response => response.json())
+        .then(data => {
+          var cubiculosSelect = document.getElementById('id_cubiculo');
+          cubiculosSelect.innerHTML = '<option value="">Selecciona un cubículo</option>';
+          data.forEach(function(cubiculo) {
+            var option = document.createElement('option');
+            option.value = cubiculo.id_cubiculo;
+            option.textContent = cubiculo.cubiculo;
+            cubiculosSelect.appendChild(option);
+          });
+        });
+    } else {
+      document.getElementById('id_cubiculo').innerHTML = '<option value="">Selecciona un cubículo</option>';
+    }
+  });
+</script>

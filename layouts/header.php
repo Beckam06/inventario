@@ -28,7 +28,7 @@
   
    if ($session->isUserLoggedIn(true)): ?>
     <header id="header">
-      <div class="logo pull-left"> OSWA - Inventory </div>
+      <div class="logo pull-left"> INVENTARIO IT </div>
       <div class="header-content">
       <div class="header-date pull-left">
         <strong><?php echo date("d/m/Y  g:i a");?></strong>

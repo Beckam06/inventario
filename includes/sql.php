@@ -242,9 +242,10 @@ function tableExists($table){
    
    function join_product_table() {
     global $db;
-    $sql  = "SELECT p.id_producto, p.nombreProducto, p.marca, p.modelo, p.descripcion, p.cantidad, p.garantia, p.precio, p.proveedor, c.categoria AS categorie, p.fechaIngreso, p.stock_minimo";
+    $sql  = "SELECT p.id_producto, p.nombreProducto, p.marca, p.modelo, p.descripcion, p.cantidad, p.precio, p.proveedor, c.categoria AS categorie, p.fechaIngreso, p.stock_minimo, cu.cubiculo";
     $sql .= " FROM producto p";
     $sql .= " LEFT JOIN categoria c ON c.id_categoria = p.id_categoria";
+    $sql .= " LEFT JOIN cubiculos cu ON cu.id_cubiculo = (SELECT id_cubiculo FROM categoria_cubiculo WHERE id_categoria = p.id_categoria LIMIT 1)";
     $sql .= " ORDER BY p.id_producto ASC";
     return find_by_sql($sql);
 }
@@ -255,7 +256,7 @@ function tableExists($table){
 
 function search_product_table($search) {
   global $db;
-  $sql  = "SELECT p.id_producto, p.nombreProducto, p.marca, p.modelo, p.descripcion, p.cantidad, p.garantia, p.precio, p.proveedor, c.categoria AS categorie, p.fechaIngreso, p.stock_minimo";
+  $sql  = "SELECT p.id_producto, p.nombreProducto, p.marca, p.modelo, p.descripcion, p.cantidad, p.precio, p.proveedor, c.categoria AS categorie, p.fechaIngreso, p.stock_minimo";
   $sql .= " FROM producto p";
   $sql .= " LEFT JOIN categoria c ON c.id_categoria = p.id_categoria";
   $sql .= " WHERE p.id_producto LIKE '%{$db->escape($search)}%' OR p.nombreProducto LIKE '%{$db->escape($search)}%'";
@@ -270,8 +271,9 @@ function search_product_table($search) {
 
 function find_product_with_category($product_id) {
   global $db;
-  $sql  = "SELECT p.*, c.categoria FROM producto p";
+  $sql  = "SELECT p.*, c.categoria, cu.cubiculo FROM producto p";
   $sql .= " LEFT JOIN categoria c ON c.id_categoria = p.id_categoria";
+  $sql .= " LEFT JOIN cubiculos cu ON cu.id_cubiculo = (SELECT id_cubiculo FROM categoria_cubiculo WHERE id_categoria = p.id_categoria LIMIT 1)";
   $sql .= " WHERE p.id_producto = '{$db->escape($product_id)}' LIMIT 1";
   $result = find_by_sql($sql);
   return !empty($result) ? $result[0] : null;

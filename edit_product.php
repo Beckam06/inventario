@@ -18,19 +18,18 @@
   }
 
   if(isset($_POST['update_product'])){
-    $req_fields = array('nombreProducto', 'marca', 'modelo', 'descripcion', 'garantia', 'precio', 'proveedor', 'id_categoria');
+    $req_fields = array('nombreProducto', 'marca', 'modelo', 'descripcion', 'precio', 'proveedor', 'id_categoria');
     validate_fields($req_fields);
     if(empty($errors)){
       $p_name  = remove_junk($db->escape($_POST['nombreProducto']));
       $p_brand = remove_junk($db->escape($_POST['marca']));
       $p_model = remove_junk($db->escape($_POST['modelo']));
       $p_desc  = remove_junk($db->escape($_POST['descripcion']));
-      $p_warranty = remove_junk($db->escape($_POST['garantia']));
       $p_price = remove_junk($db->escape($_POST['precio']));
       $p_supplier = remove_junk($db->escape($_POST['proveedor']));
       $p_cat   = remove_junk($db->escape($_POST['id_categoria']));
       $query  = "UPDATE producto SET";
-      $query .= " nombreProducto='{$p_name}', marca='{$p_brand}', modelo='{$p_model}', descripcion='{$p_desc}', garantia='{$p_warranty}', precio='{$p_price}', proveedor='{$p_supplier}', id_categoria='{$p_cat}'";
+      $query .= " nombreProducto='{$p_name}', marca='{$p_brand}', modelo='{$p_model}', descripcion='{$p_desc}', precio='{$p_price}', proveedor='{$p_supplier}', id_categoria='{$p_cat}'";
       $query .= " WHERE id_producto='{$product_id}'";
       if($db->query($query)){
         $session->msg('s',"Producto actualizado exitosamente.");
@@ -93,14 +92,6 @@
                  <i class="glyphicon glyphicon-th-large"></i>
                 </span>
                 <input type="text" class="form-control" name="descripcion" value="<?php echo remove_junk($product['descripcion']); ?>">
-             </div>
-            </div>
-            <div class="form-group">
-              <div class="input-group">
-                <span class="input-group-addon">
-                 <i class="glyphicon glyphicon-th-large"></i>
-                </span>
-                <input type="text" class="form-control" name="garantia" value="<?php echo remove_junk($product['garantia']); ?>">
              </div>
             </div>
             <div class="form-group">
