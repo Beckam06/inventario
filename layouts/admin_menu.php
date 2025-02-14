@@ -59,6 +59,14 @@
   </li>
 
   <li>
+    <a href="lista_solicitudes_recibidas.php">
+      <i class="glyphicon glyphicon-th-list"></i>
+       <span>Lista de solicitudes</span>
+      </a>
+      
+  </li>
+
+  <li>
     <a href="historial_solicitudes.php">
       <i class="glyphicon glyphicon-th-list"></i>
        <span>Historial Solicitudes</span>
