@@ -78,7 +78,7 @@ if (isset($_POST['crear_solicitud'])) {
                     </div>
                     <div class="form-group">
                         <label>Garantía:</label>
-                        <input type="text" class="form-control" value="<?php echo remove_junk($producto['garantia']); ?>" readonly>
+                        <input type="text" class="form-control" value="<?php echo isset($producto['garantia']) ? remove_junk($producto['garantia']) : ''; ?>" readonly>
                     </div>
                     <div class="form-group">
                         <label>Precio:</label>

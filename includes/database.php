@@ -42,21 +42,14 @@ public function db_disconnect()
 /*--------------------------------------------------------------*/
 /* Function for mysqli query
 /*--------------------------------------------------------------*/
-public function query($sql)
-   {
-
-      if (trim($sql != "")) {
-          $this->query_id = $this->con->query($sql);
-      }
-      if (!$this->query_id)
-        // only for Develope mode
-              die("Error en esta consulta :<pre> " . $sql ."</pre>");
-       // For production mode
-        //  die("Error on Query");
-
-       return $this->query_id;
-
-   }
+public function query($sql) {
+    $result = $this->con->query($sql);
+    if (!$result) {
+        error_log("Error en la consulta SQL: " . $this->con->error); // Registrar el error en el log
+        throw new mysqli_sql_exception("Error en la consulta SQL: " . $this->con->error);
+    }
+    return $result;
+}
 
 /*--------------------------------------------------------------*/
 /* Function for Query Helper

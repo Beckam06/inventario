@@ -28,7 +28,7 @@
   
    if ($session->isUserLoggedIn(true)): ?>
     <header id="header">
-      <div class="logo pull-left"> OSWA - Inventory </div>
+      <div class="logo pull-left"> INVENTARIO IT </div>
       <div class="header-content">
       <div class="header-date pull-left">
         <strong><?php echo date("d/m/Y  g:i a");?></strong>
@@ -69,12 +69,12 @@
       <?php if($user['user_level'] === '1'): ?>
         <!-- admin menu -->
       <?php include_once('admin_menu.php');?>
-
-      <?php elseif($user['user_level'] === '2'): ?>
+      
+      <?php elseif($user['user_level'] === '3'): ?>
         <!-- Special user -->
       <?php include_once('special_menu.php');?>
 
-      <?php elseif($user['user_level'] === '3'): ?>
+      <?php elseif($user['user_level'] === '2'): ?>
         <!-- User menu -->
       <?php include_once('user_menu.php');?>
 

@@ -98,7 +98,7 @@ function read_date($str){
 /* Function for  Readable Make date time
 /*--------------------------------------------------------------*/
 function make_date(){
-  return strftime("%Y-%m-%d %H:%M:%S", time());
+  return date("Y-m-d H:i:s");
 }
 /*--------------------------------------------------------------*/
 /* Function for  Readable date time
@@ -120,10 +120,19 @@ function randString($length = 5)
   return $str;
 }
 
-function find_by_producto($table, $id_producto) {
+function find_by_cubiculo($table, $id_categoria) {
   global $db;
-  $sql = "SELECT * FROM {$table} WHERE id_producto = {$id_producto}";
+  $sql = "SELECT cubiculos.* 
+          FROM cubiculos
+          INNER JOIN categoria_cubiculo ON cubiculos.id_cubiculo = categoria_cubiculo.id_cubiculo
+          WHERE categoria_cubiculo.id_categoria = {$id_categoria}";
   return $db->query($sql)->fetch_all(MYSQLI_ASSOC);
+}
+
+function find_cubiculos_by_categoria($categoria_id) {
+    global $db;
+    $sql  = "SELECT id_cubiculo, nombre_cubiculo FROM cubiculo WHERE id_categoria='{$categoria_id}'";
+    return find_by_sql($sql);
 }
 
 /*--------------------------------------------------------------*/

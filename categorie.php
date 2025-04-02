@@ -4,7 +4,7 @@ require_once('includes/load.php');
 page_require_level(1);
 
 // Establecer la zona horaria
-date_default_timezone_set('America/Tegucigalpa'); 
+date_default_timezone_set('America/Tegucigalpa');
 
 // Configuración de la paginación
 $registros_por_pagina = 5; // Número de registros por página
@@ -31,28 +31,36 @@ if (isset($_POST['add_cat'])) {
     $cat_categoria = remove_junk($db->escape($_POST['categoria']));
     $cubiculos_asignados = isset($_POST['cubiculos']) ? $_POST['cubiculos'] : [];
 
-    if (empty($errors)) {
-        // Insertar la categoría
-        $sql = "INSERT INTO categoria (categoria) VALUES ('{$cat_categoria}')";
-        if ($db->query($sql)) {
-            $id_categoria = $db->insert_id(); // Obtener el ID de la categoría recién insertada
+    // Verificar si la categoría ya existe
+    $sql = "SELECT * FROM categoria WHERE categoria = '{$cat_categoria}'";
+    $result = $db->query($sql);
+    if ($db->num_rows($result) > 0) {
+        $session->msg("d", "La categoría '{$cat_categoria}' ya existe.");
+        redirect('categorie.php', false);
+    } else {
+        if (empty($errors)) {
+            // Insertar la categoría
+            $sql = "INSERT INTO categoria (categoria) VALUES ('{$cat_categoria}')";
+            if ($db->query($sql)) {
+                $id_categoria = $db->insert_id(); // Obtener el ID de la categoría recién insertada
 
-            // Asignar cubículos a la categoría
-            if (!empty($cubiculos_asignados)) {
-                foreach ($cubiculos_asignados as $id_cubiculo) {
-                    $db->query("INSERT INTO categoria_cubiculo (id_categoria, id_cubiculo) VALUES ({$id_categoria}, {$id_cubiculo})");
+                // Asignar cubículos a la categoría
+                if (!empty($cubiculos_asignados)) {
+                    foreach ($cubiculos_asignados as $id_cubiculo) {
+                        $db->query("INSERT INTO categoria_cubiculo (id_categoria, id_cubiculo) VALUES ({$id_categoria}, {$id_cubiculo})");
+                    }
                 }
-            }
 
-            $session->msg("s", "Categoría agregada exitosamente.");
-            redirect('categorie.php', false);
+                $session->msg("s", "Categoría agregada exitosamente.");
+                redirect('categorie.php', false);
+            } else {
+                $session->msg("d", "Lo siento, registro falló.");
+                redirect('categorie.php', false);
+            }
         } else {
-            $session->msg("d", "Lo siento, registro falló.");
+            $session->msg("d", $errors);
             redirect('categorie.php', false);
         }
-    } else {
-        $session->msg("d", $errors);
-        redirect('categorie.php', false);
     }
 }
 
@@ -162,6 +170,36 @@ if (isset($_POST['update_cubiculos'])) {
                                     </div>
                                 </td>
                             </tr>
+                            <!-- gestionar cubículos -->
+                            <div class="modal fade" id="modalCubiculos<?php echo $cat['id_categoria']; ?>" tabindex="-1" role="dialog" aria-labelledby="modalCubiculosLabel<?php echo $cat['id_categoria']; ?>">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                            <h4 class="modal-title" id="modalCubiculosLabel<?php echo $cat['id_categoria']; ?>">Gestionar Cubículos para <?php echo $cat['categoria']; ?></h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form method="post" action="categorie.php">
+                                                <input type="hidden" name="id_categoria" value="<?php echo $cat['id_categoria']; ?>">
+                                                <div class="form-group">
+                                                    <label>Seleccionar Cubículos:</label>
+                                                    <?php foreach ($all_cubiculos as $cubiculo): ?>
+                                                        <div>
+                                                            <input type="checkbox" name="cubiculos[]" value="<?php echo $cubiculo['id_cubiculo']; ?>"
+                                                                <?php if (in_array($cubiculo['id_cubiculo'], array_column($cubiculos_asignados, 'id_cubiculo'))) echo "checked"; ?>>
+                                                            <?php echo $cubiculo['cubiculo']; ?>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                                <button type="submit" name="update_cubiculos" class="btn btn-primary">Guardar Cambios</button>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
@@ -179,6 +217,7 @@ if (isset($_POST['update_cubiculos'])) {
                     <?php if ($pagina_actual < $total_paginas): ?>
                         <a href="?pagina=<?php echo $pagina_actual + 1; ?>" class="btn btn-primary">Siguiente</a>
                     <?php endif; ?>
+
                 </div>
             </div>
         </div>

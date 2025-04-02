@@ -3,25 +3,17 @@ $page_title = 'Historial de Órdenes de Salida';
 require_once('includes/load.php');
 page_require_level(1);
 
-// Habilitar la visualización de errores
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// Obtener órdenes de salida
+// Obtener órdenes de salida con detalles de unidades entregadas
 $ordenes_salida = $db->query("
-    SELECT os.*, d.nombre_departamento, p.nombreProducto 
+    SELECT os.*, d.nombre_departamento, p.nombreProducto, GROUP_CONCAT(pc.codigo_unidad) AS unidades_entregadas
     FROM orden_salida os
     JOIN departamento d ON os.id_departamento = d.id_departamento
     JOIN solicitud_compra sc ON os.id_solicitudCompra = sc.id_solicitudCompra
     JOIN producto p ON sc.id_producto = p.id_producto
-");
-
-if (!$ordenes_salida) {
-    die("Error en la consulta: " . $db->error);
-}
-
-$ordenes_salida = $ordenes_salida->fetch_all(MYSQLI_ASSOC);
+    LEFT JOIN detalle_orden_salida dos ON os.id_orden_salida = dos.id_orden_salida
+    LEFT JOIN producto_codigo pc ON dos.id_producto_codigo = pc.id
+    GROUP BY os.id_orden_salida
+")->fetch_all(MYSQLI_ASSOC);
 
 include_once('layouts/header.php');
 ?>
@@ -46,9 +38,11 @@ include_once('layouts/header.php');
                             <th>Producto</th>
                             <th>Departamento</th>
                             <th>Cantidad Entregada</th>
+                            <th>Unidades Entregadas</th>
                             <th>Responsable</th>
                             <th>Fecha de Entrega</th>
                             <th>Archivo PDF</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -58,9 +52,11 @@ include_once('layouts/header.php');
                                 <td><?php echo $orden['nombreProducto']; ?></td>
                                 <td><?php echo $orden['nombre_departamento']; ?></td>
                                 <td><?php echo $orden['cantidad_entregada']; ?></td>
+                                <td><?php echo $orden['unidades_entregadas']; ?></td>
                                 <td><?php echo $orden['responsable']; ?></td>
                                 <td><?php echo $orden['fecha_entrega']; ?></td>
                                 <td><a href="<?php echo $orden['archivo_pdf']; ?>" target="_blank">Ver PDF</a></td>
+                                <td><a href="detalle_orden_salida.php?id=<?php echo $orden['id_orden_salida']; ?>" class="btn btn-info btn-xs">Ver Detalles</a></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

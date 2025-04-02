@@ -1,14 +1,21 @@
 <?php
 $page_title = 'Lista de Pedidos Pendientes';
 require_once('includes/load.php');
-page_require_level(1);
+
+  // Permitir acceso a usuarios de nivel 1 y nivel 2
+  $user = current_user(); 
+  if (!$session->isUserLoggedIn(true) || !in_array((int)$user['user_level'], [1, 2])) {
+    $session->msg('d', 'No tienes permiso para acceder a esta página.');
+    redirect('index.php');
+  }
 
 // Obtener todas las solicitudes de compra pendientes con JOIN a las tablas relacionadas
-$sql = "SELECT sc.*, e.estado, d.nombre_departamento, p.* 
+$sql = "SELECT sc.*, e.estado, d.nombre_departamento, 
+        p.nombreProducto, p.marca, p.modelo, p.descripcion, p.cantidad, p.precio, p.proveedor, p.id_categoria
         FROM solicitud_compra sc
-        JOIN estado e ON sc.id_estado = e.id_estado
-        JOIN departamento d ON sc.id_departamento = d.id_departamento
-        JOIN producto p ON sc.id_producto = p.id_producto
+        LEFT JOIN estado e ON sc.id_estado = e.id_estado
+        LEFT JOIN departamento d ON sc.id_departamento = d.id_departamento
+        LEFT JOIN producto p ON sc.id_producto = p.id_producto
         WHERE sc.id_estado = 1
         ORDER BY sc.fecha_solicitud DESC";
 $solicitudes = $db->query($sql);
@@ -55,12 +62,13 @@ $solicitudes = $db->query($sql);
                                     <!-- Botón para abrir el modal -->
                                     <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalProducto<?php echo $solicitud['id_producto']; ?>">
                                         <span class="glyphicon glyphicon-eye-open"></span> Ver Producto
-                                        <td>
-                                    <a href="marcar_recibido.php?id=<?php echo $solicitud['id_solicitudCompra']; ?>" 
-                                    class="btn btn-success btn-xs">
+                                    </button>
+                                    <a href="marcar_recibido.php?id=<?php echo $solicitud['id_solicitudCompra']; ?>" class="btn btn-success btn-xs">
                                         <span class="glyphicon glyphicon-ok"></span> Marcar como Recibido
                                     </a>
-                               
+                                    <button type="button" class="btn btn-primary btn-xs" onclick="enviarCorreo('<?php echo $solicitud['id_solicitudCompra']; ?>')">
+                                        <span class="glyphicon glyphicon-envelope"></span> Enviar por Correo
+                                    </button>
                                 </td>
                             </tr>
                             <!-- Modal para ampliar la información del producto -->
@@ -129,5 +137,23 @@ $solicitudes = $db->query($sql);
         </div>
     </div>
 </div>
+
+<script>
+function enviarCorreo(id_solicitudCompra) {
+    fetch('enviar_correo.php?id=' + id_solicitudCompra)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Correo enviado exitosamente.');
+            } else {
+                alert('Error al enviar el correo: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('Error al enviar el correo.');
+            console.error('Error:', error);
+        });
+}
+</script>
 
 <?php include_once('layouts/footer.php'); ?>
