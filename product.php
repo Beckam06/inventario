@@ -1,8 +1,13 @@
 <?php
   $page_title = 'Lista de productos';
   require_once('includes/load.php');
-  // Checkin What level user has permission to view this page
-
+ 
+  // Permitir acceso a usuarios de nivel 1 y nivel 2
+$user = current_user(); 
+if (!$session->isUserLoggedIn(true) || !in_array((int)$user['user_level'], [1, 2])) {
+  $session->msg('d', 'No tienes permiso para acceder a esta página.');
+  redirect('index.php');
+}
   $search = '';
   if(isset($_POST['search'])){
     $search = remove_junk($db->escape($_POST['search']));

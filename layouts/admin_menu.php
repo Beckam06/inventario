@@ -1,6 +1,6 @@
 <ul>
   <li>
-    <a href="admin.php">
+    <a href="dashboard.php">
       <i class="glyphicon glyphicon-home"></i>
       <span>Panel de control</span>
     </a>
@@ -22,7 +22,6 @@
     </a>
     <ul class="nav submenu">
        <li><a href="categorie.php">Agregar categoria</a> </li>
-       <li><a href="cubiculo.php">Asignar cubículo</a> </li>
    </ul>
   </li>
   <li>
@@ -45,12 +44,6 @@
    </ul>
   </li>
   <li>
-    <a href="media.php" >
-      <i class="glyphicon glyphicon-picture"></i>
-      <span>Media</span>
-    </a>
-  </li>
-  <li>
     <a href="lista_pedidos.php">
       <i class="glyphicon glyphicon-th-list"></i>
        <span>Lista de pedidos</span>
@@ -61,32 +54,28 @@
   <li>
     <a href="lista_solicitudes_recibidas.php">
       <i class="glyphicon glyphicon-th-list"></i>
-       <span>Lista de solicitudes</span>
+       <span>Solicitudes Recibidas</span>
       </a>
       
   </li>
-
   <li>
     <a href="historial_solicitudes.php">
       <i class="glyphicon glyphicon-th-list"></i>
        <span>Historial Solicitudes</span>
       </a>
-      
   </li>
   <li>
     <a href="#" class="submenu-toggle">
-      <i class="glyphicon glyphicon-signal"></i>
-       <span>Reporte de ventas</span>
-      </a>
-      <ul class="nav submenu">
-        <li><a href="sales_report.php">Ventas por fecha </a></li>
-        <li><a href="monthly_sales.php">Ventas mensuales</a></li>
-        <li><a href="daily_sales.php">Ventas diarias</a> </li>
-      </ul>
+      <i class="glyphicon glyphicon-list-alt"></i>
+      <span>Reporte Órden Salida</span>
+    </a>
+    <ul class="nav submenu">
+      <li><a href="historial_ordenes_salida.php">Ver Orden Salida</a></li>
+    </ul>
   </li>
   <li>
     <a href="#" class="submenu-toggle">
-      <i class="glyphicon glyphicon-th-list"></i>
+      <i class="glyphicon glyphicon-list-alt"></i>
       <span>Reportes Salida</span>
     </a>
     <ul class="nav submenu">

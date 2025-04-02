@@ -120,12 +120,6 @@ function randString($length = 5)
   return $str;
 }
 
-function find_by_producto($table, $id_producto) {
-  global $db;
-  $sql = "SELECT * FROM {$table} WHERE id_producto = {$id_producto}";
-  return $db->query($sql)->fetch_all(MYSQLI_ASSOC);
-}
-
 function find_by_cubiculo($table, $id_categoria) {
   global $db;
   $sql = "SELECT cubiculos.* 
@@ -133,6 +127,12 @@ function find_by_cubiculo($table, $id_categoria) {
           INNER JOIN categoria_cubiculo ON cubiculos.id_cubiculo = categoria_cubiculo.id_cubiculo
           WHERE categoria_cubiculo.id_categoria = {$id_categoria}";
   return $db->query($sql)->fetch_all(MYSQLI_ASSOC);
+}
+
+function find_cubiculos_by_categoria($categoria_id) {
+    global $db;
+    $sql  = "SELECT id_cubiculo, nombre_cubiculo FROM cubiculo WHERE id_categoria='{$categoria_id}'";
+    return find_by_sql($sql);
 }
 
 /*--------------------------------------------------------------*/

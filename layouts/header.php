@@ -69,12 +69,12 @@
       <?php if($user['user_level'] === '1'): ?>
         <!-- admin menu -->
       <?php include_once('admin_menu.php');?>
-
-      <?php elseif($user['user_level'] === '2'): ?>
+      
+      <?php elseif($user['user_level'] === '3'): ?>
         <!-- Special user -->
       <?php include_once('special_menu.php');?>
 
-      <?php elseif($user['user_level'] === '3'): ?>
+      <?php elseif($user['user_level'] === '2'): ?>
         <!-- User menu -->
       <?php include_once('user_menu.php');?>
 

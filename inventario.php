@@ -1,7 +1,13 @@
 <?php
 $page_title = 'Inventario';
 require_once('includes/load.php');
-page_require_level(1);
+
+  // Permitir acceso a usuarios de nivel 1 y nivel 2
+  $user = current_user(); 
+  if (!$session->isUserLoggedIn(true) || !in_array((int)$user['user_level'], [1, 2])) {
+    $session->msg('d', 'No tienes permiso para acceder a esta página.');
+    redirect('index.php');
+  }
 
 // Establecer la zona horaria
 date_default_timezone_set('America/Tegucigalpa'); // Ajusta esto a tu zona horaria
@@ -11,22 +17,47 @@ $highlight = '';
 $low_stock_alert = false;
 $low_stock_products = [];
 
+// Obtener encargados de salida desde la tabla `users`
+$encargados = $db->query("SELECT id, name FROM users WHERE user_level = 1 AND status = 1")->fetch_all(MYSQLI_ASSOC);
+
 if (isset($_POST['search']) || isset($_GET['search']) || isset($_GET['highlight'])) {
     $search = isset($_POST['search']) ? $_POST['search'] : (isset($_GET['search']) ? $_GET['search'] : '');
     $search = $search ? remove_junk($db->escape($search)) : '';
     $highlight = isset($_GET['highlight']) ? (int)$_GET['highlight'] : '';
     if ($search == '') {
-        $products = join_product_table();
+        $products = find_by_sql("
+            SELECT DISTINCT p.id_producto, p.nombreProducto, p.marca, p.modelo, p.descripcion, 
+                   p.cantidad, p.precio, p.proveedor, c.categoria AS categorie, p.fechaIngreso, 
+                   p.stock_minimo, cu.cubiculo
+            FROM producto p
+            LEFT JOIN categoria c ON c.id_categoria = p.id_categoria
+            LEFT JOIN cubiculos cu ON cu.id_cubiculo = p.id_cubiculo
+            WHERE p.visible = 1
+            ORDER BY p.id_producto ASC
+        ");
     } else {
         $products = search_product_table($search);
     }
 } else {
-    $products = join_product_table();
+    $products = find_by_sql("
+        SELECT DISTINCT p.id_producto, p.nombreProducto, p.marca, p.modelo, p.descripcion, 
+               p.cantidad, p.precio, p.proveedor, c.categoria AS categorie, p.fechaIngreso, 
+               p.stock_minimo, cu.cubiculo
+        FROM producto p
+        LEFT JOIN categoria c ON c.id_categoria = p.id_categoria
+        LEFT JOIN cubiculos cu ON cu.id_cubiculo = p.id_cubiculo
+        WHERE p.visible = 1
+        ORDER BY p.id_producto ASC
+    ");
 }
 
 // Verificar si hay productos con stock bajo
-foreach ($products as $product) {
-    if ($product['cantidad'] <= $product['stock_minimo']) {
+foreach ($products as $key => $product) {
+    $products[$key] = array_map('remove_junk', $product); // Asegúrate de limpiar los datos
+    $cantidad = (int)$product['cantidad'];
+    $stock_minimo = (int)$product['stock_minimo'];
+
+    if ($cantidad <= $stock_minimo) {
         $low_stock_alert = true;
         $low_stock_products[] = $product['nombreProducto'];
     }
@@ -36,10 +67,10 @@ if (isset($_POST['salida'])) {
     $id_producto = (int)$_POST['id_producto'];
     $id_departamento = (int)$_POST['id_departamento'];
     $responsable = remove_junk($db->escape($_POST['responsable']));
-    $ordenEntrega = remove_junk($db->escape($_POST['ordenEntrega']));
-    $cantidad_salida = (int)$_POST['cantidad_salida'];
-    $fechaSalida = date('Y-m-d');
-    $horaSalida = date('H:i:s'); // Obtener la hora actual de la computadora
+    $id_encargado = (int)$_POST['id_encargado'];
+    $cantidad_entregada = (int)$_POST['cantidad_entregada'];
+    $fecha_entrega = date('Y-m-d H:i:s');
+   
 
     // Verificar si el id_departamento existe
     $result = $db->query("SELECT id_departamento FROM departamento WHERE id_departamento = '{$id_departamento}'");
@@ -47,11 +78,11 @@ if (isset($_POST['salida'])) {
         // Verificar si hay suficiente stock
         $result = $db->query("SELECT cantidad, stock_minimo FROM producto WHERE id_producto = '{$id_producto}'");
         $producto = $db->fetch_assoc($result);
-        if ($producto['cantidad'] >= $cantidad_salida) {
-            $query  = "INSERT INTO salida_equipo (id_departamento, responsable, ordenEntrega, id_producto, fechaSalida, horaSalida, cantidad_salida) ";
-            $query .= "VALUES ('{$id_departamento}', '{$responsable}', '{$ordenEntrega}', '{$id_producto}', '{$fechaSalida}', '{$horaSalida}', '{$cantidad_salida}')";
+        if ($producto['cantidad'] >= $cantidad_entregada) {
+            $query  = "INSERT INTO orden_salida (id_departamento, responsable, id_producto, cantidad_entregada, fecha_entrega, id_encargado) ";
+            $query .= "VALUES ('{$id_departamento}', '{$responsable}', '{$id_producto}', '{$cantidad_entregada}', '{$fecha_entrega}', '{$id_encargado}')";
             if ($db->query($query)) {
-                $query  = "UPDATE producto SET cantidad = cantidad - '{$cantidad_salida}' WHERE id_producto = '{$id_producto}'";
+                $query  = "UPDATE producto SET cantidad = cantidad - '{$cantidad_entregada}' WHERE id_producto = '{$id_producto}'";
                 $db->query($query);
                 $session->msg('s', "Producto retirado exitosamente.");
                 redirect('inventario.php?highlight=' . $id_producto, false);
@@ -114,18 +145,22 @@ if (isset($_POST['salida'])) {
                     </thead>
                     <tbody>
                         <?php foreach ($products as $product): ?>
-                        <tr id="product-<?php echo $product['id_producto']; ?>" <?php if ($product['id_producto'] == $highlight) echo 'class="highlight"'; if ($product['cantidad'] <= $product['stock_minimo']) echo ' class="low-stock"'; ?>>
+                        <tr id="product-<?php echo $product['id_producto']; ?>" 
+                            <?php 
+                            // Aplicar la clase 'low-stock' si la cantidad es menor o igual al stock mínimo
+                            if ((int)$product['cantidad'] <= (int)$product['stock_minimo']) echo ' class="low-stock"'; 
+                            ?>>
                             <td class="text-center"><?php echo count_id(); ?></td>
                             <td> <?php echo remove_junk($product['fechaIngreso']); ?></td>
                             <td> <?php echo remove_junk($product['nombreProducto']); ?></td>
                             <td> <?php echo remove_junk($product['marca']); ?></td>
                             <td> <?php echo remove_junk($product['modelo']); ?></td>
                             <td> <?php echo remove_junk($product['descripcion']); ?></td>
-                            <td class="<?php echo ($product['cantidad'] < 3) ? 'low-stock' : ''; ?>"> <?php echo remove_junk($product['cantidad']); ?></td>
+                            <td> <?php echo remove_junk($product['cantidad']); ?></td>
                             <td> <?php echo remove_junk($product['precio']); ?></td>
                             <td> <?php echo remove_junk($product['proveedor']); ?></td>
                             <td> <?php echo remove_junk($product['categorie']); ?></td>
-                            <td> <?php echo isset($product['cubiculo']) ? remove_junk($product['cubiculo']) : ''; ?></td>
+                            <td> <?php echo isset($product['cubiculo']) ? remove_junk($product['cubiculo']) : 'Sin asignar'; ?></td>
                             <td class="text-center">
                                 <div class="btn-group">
                                     <a href="edit_product.php?id=<?php echo (int)$product['id_producto']; ?>" class="btn btn-info btn-xs" title="Editar" data-toggle="tooltip">
@@ -134,18 +169,19 @@ if (isset($_POST['salida'])) {
                                     <a href="add_stock.php?id=<?php echo (int)$product['id_producto']; ?>&search=<?php echo $search; ?>" class="btn btn-success btn-xs" title="Añadir Stock" data-toggle="tooltip">
                                         <span class="glyphicon glyphicon-plus"></span>
                                     </a>
-                                    <?php if ($product['cantidad'] <= $product['stock_minimo']): ?>
-                                    <a href="solicitud_compra.php?id_producto=<?php echo (int)$product['id_producto']; ?>" class="btn btn-danger btn-xs" title="Solicitar Compra" data-toggle="tooltip">
+                                    <?php if ((int)$product['cantidad'] <= (int)$product['stock_minimo']): ?>
+                                    <a href="solicitar_compra.php?id_producto=<?php echo (int)$product['id_producto']; ?>" class="btn btn-danger btn-xs" title="Solicitar Compra" data-toggle="tooltip">
                                         <span class="glyphicon glyphicon-shopping-cart"></span>
                                     </a>
                                     <?php endif; ?>
-                                    <!-- Botón para ver detalles de garantías, órdenes y facturas -->
                                     <a href="detalles_producto.php?id=<?php echo (int)$product['id_producto']; ?>" class="btn btn-warning btn-xs" title="Ver Detalles" data-toggle="tooltip">
                                         <span class="glyphicon glyphicon-list-alt"></span>
                                     </a>
+                                    <?php if ((int)$product['cantidad'] > 0): // Solo mostrar el botón de salida si hay stock disponible ?>
                                     <a href="#" class="btn btn-danger btn-xs" title="Salida" data-toggle="modal" data-target="#salidaModal-<?php echo (int)$product['id_producto']; ?>">
                                         <span class="glyphicon glyphicon-minus"></span>
                                     </a>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>
@@ -176,12 +212,19 @@ if (isset($_POST['salida'])) {
                                                 <input type="text" class="form-control" name="responsable" required>
                                             </div>
                                             <div class="form-group">
-                                                <label for="ordenEntrega">Orden de Entrega</label>
-                                                <input type="text" class="form-control" name="ordenEntrega" required>
+                                                <label for="id_encargado">Encargado de la Salida</label>
+                                                <select class="form-control" name="id_encargado" required>
+                                                    <option value="">Selecciona un encargado</option>
+                                                    <?php foreach ($encargados as $encargado): ?>
+                                                        <option value="<?php echo $encargado['id']; ?>">
+                                                            <?php echo $encargado['name']; ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
                                             </div>
                                             <div class="form-group">
-                                                <label for="cantidad_salida">Cantidad a Retirar</label>
-                                                <input type="number" class="form-control" name="cantidad_salida" min="1" max="<?php echo (int)$product['cantidad']; ?>" required>
+                                                <label for="cantidad_entregada">Cantidad a Retirar</label>
+                                                <input type="number" class="form-control" name="cantidad_entregada" min="1" max="<?php echo (int)$product['cantidad']; ?>" required>
                                             </div>
                                         </div>
                                         <div class="modal-footer">

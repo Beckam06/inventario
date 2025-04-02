@@ -1,7 +1,14 @@
 <?php
 $page_title = 'Solicitudes Recibidas';
 require_once('includes/load.php');
-page_require_level(1);
+
+  // Permitir acceso a usuarios de nivel 1 y nivel 2
+  $user = current_user(); 
+  if (!$session->isUserLoggedIn(true) || !in_array((int)$user['user_level'], [1, 2])) {
+    $session->msg('d', 'No tienes permiso para acceder a esta página.');
+    redirect('index.php');
+  }
+
 
 // Obtener solicitudes recibidas
 $solicitudes_recibidas = $db->query("

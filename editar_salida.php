@@ -1,38 +1,35 @@
 <?php
 require_once('includes/load.php');
 
+page_require_level(1);
+
 if (isset($_GET['id'])) {
     $id_salida = (int)$_GET['id'];
-    $query = "SELECT * FROM salida_equipo WHERE id_salidaEquipo = '{$id_salida}'";
+    $query = "SELECT * FROM orden_salida WHERE id_orden_salida = '{$id_salida}'";
     $result = $db->query($query);
     $salida = $db->fetch_assoc($result);
 
     if (isset($_POST['update'])) {
         $responsable = $_POST['responsable'];
-        $departamento = $_POST['departamento'];
-        $ordenEntrega = $_POST['ordenEntrega'];
-        $fechaSalida = $_POST['fechaSalida'];
-        $horaSalida = $_POST['horaSalida'];
-        $cantidad_salida = (int)$_POST['cantidad_salida'];
+        $cantidad_entregada = (int)$_POST['cantidad_entregada'];
+        $fecha_entrega = date('Y-m-d H:i:s'); // Capturar la fecha y hora del sistema
 
         // Obtener la cantidad anterior
-        $cantidad_anterior = (int)$salida['cantidad_salida'];
+        $cantidad_anterior = (int)$salida['cantidad_entregada'];
 
         // Calcular la diferencia
-        $diferencia = $cantidad_anterior - $cantidad_salida;
+        $diferencia = $cantidad_anterior - $cantidad_entregada;
 
         // Actualizar la cantidad en el inventario
         $query = "UPDATE producto SET cantidad = cantidad + '{$diferencia}' WHERE id_producto = '{$salida['id_producto']}'";
         $db->query($query);
 
         // Actualizar la salida
-        $query = "UPDATE salida_equipo SET 
+        $query = "UPDATE orden_salida SET 
                   responsable = '{$responsable}', 
-                  ordenEntrega = '{$ordenEntrega}', 
-                  fechaSalida = '{$fechaSalida}', 
-                  horaSalida = '{$horaSalida}', 
-                  cantidad_salida = '{$cantidad_salida}' 
-                  WHERE id_salidaEquipo = '{$id_salida}'";
+                  fecha_entrega = '{$fecha_entrega}', 
+                  cantidad_entregada = '{$cantidad_entregada}' 
+                  WHERE id_orden_salida = '{$id_salida}'";
         $db->query($query);
         header("Location: reporte_salida.php?id={$id_salida}");
     }
@@ -56,20 +53,8 @@ if (isset($_GET['id'])) {
                 <input type="text" class="form-control" name="responsable" value="<?php echo $salida['responsable']; ?>">
               </div>
               <div class="form-group">
-                <label for="ordenEntrega">Orden de Entrega</label>
-                <input type="text" class="form-control" name="ordenEntrega" value="<?php echo $salida['ordenEntrega']; ?>">
-              </div>
-              <div class="form-group">
-                <label for="fechaSalida">Fecha de Salida</label>
-                <input type="date" class="form-control" name="fechaSalida" value="<?php echo $salida['fechaSalida']; ?>">
-              </div>
-              <div class="form-group">
-                <label for="horaSalida">Hora de Salida</label>
-                <input type="time" class="form-control" name="horaSalida" value="<?php echo $salida['horaSalida']; ?>">
-              </div>
-              <div class="form-group">
-                <label for="cantidad_salida">Cantidad</label>
-                <input type="number" class="form-control" name="cantidad_salida" value="<?php echo $salida['cantidad_salida']; ?>">
+                <label for="cantidad_entregada">Cantidad</label>
+                <input type="number" class="form-control" name="cantidad_entregada" value="<?php echo $salida['cantidad_entregada']; ?>">
               </div>
               <button type="submit" name="update" class="btn btn-primary">Actualizar</button>
             </form>

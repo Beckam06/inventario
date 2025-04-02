@@ -1,7 +1,14 @@
 <?php
 $page_title = 'Historial de Solicitudes de Compra';
 require_once('includes/load.php');
-page_require_level(1);
+
+ // Permitir acceso a usuarios de nivel 1 y nivel 2
+ $user = current_user(); 
+ if (!$session->isUserLoggedIn(true) || !in_array((int)$user['user_level'], [1, 2])) {
+   $session->msg('d', 'No tienes permiso para acceder a esta página.');
+   redirect('index.php');
+ }
+
 
 // Obtener todas las solicitudes de compra con JOIN a las tablas relacionadas
 $sql = "SELECT sc.*, e.estado, d.nombre_departamento, p.* 
@@ -80,7 +87,7 @@ $solicitudes = $db->query($sql);
                                                 </div>
                                                 <div class="col-md-6">
                                                     <p><strong>Cantidad en Inventario:</strong> <?php echo remove_junk($solicitud['cantidad']); ?></p>
-                                                    <p><strong>Garantía:</strong> <?php echo remove_junk($solicitud['fecha_garantia']); ?></p>
+                                                    <p><strong>Garantía:</strong> <?php echo isset($solicitud['fecha_garantia']) ? remove_junk($solicitud['fecha_garantia']) : 'No aplica'; ?></p>
                                                     <p><strong>Precio:</strong> <?php echo remove_junk($solicitud['precio']); ?></p>
                                                     <p><strong>Proveedor:</strong> <?php echo remove_junk($solicitud['proveedor']); ?></p>
                                                     <p><strong>Categoría:</strong> <?php echo remove_junk($solicitud['id_categoria']); ?></p>

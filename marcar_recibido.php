@@ -13,7 +13,7 @@ $id_solicitud = (int)$_GET['id'];
 // Obtener detalles de la solicitud y productos asociados
 $sql = "SELECT sc.*, p.nombreProducto, p.id_producto 
         FROM solicitud_compra sc
-        JOIN producto p ON sc.id_producto = p.id_producto
+        LEFT JOIN producto p ON sc.id_producto = p.id_producto
         WHERE sc.id_solicitudCompra = {$id_solicitud}";
 $solicitud = $db->query($sql)->fetch_assoc();
 
@@ -30,57 +30,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id_producto = $solicitud['id_producto'];
         $cantidad = $solicitud['cantidad_solicitada'];
 
-        // Validar que se hayan subido archivos para cada producto
-        for ($i = 0; $i < $cantidad; $i++) {
-            if (
-                empty($_POST['codigo_unidad'][$i]) || 
-                empty($_POST['garantia'][$i]) || 
-                empty($_POST['fecha_garantia'][$i]) ||
-                empty($_FILES['archivo_garantia']['tmp_name'][$i]) ||
-                empty($_FILES['archivo_orden']['tmp_name'][$i]) ||
-                empty($_FILES['archivo_factura']['tmp_name'][$i])
-            ) {
-                throw new Exception("Complete todos los campos para el producto #" . ($i + 1));
-            }
-
-            // Obtener el código de unidad ingresado manualmente
-            $codigo_unidad = $_POST['codigo_unidad'][$i];
-
-            // Insertar el código de unidad en la tabla producto_codigo
-            $sql_codigo = "INSERT INTO producto_codigo (id_producto, codigo_unidad) 
-                           VALUES ('{$id_producto}', '{$db->escape($codigo_unidad)}')";
-            $db->query($sql_codigo);
-            $id_producto_codigo = $db->insert_id(); // Obtener el ID generado
-
-            // Subir archivos
-            $garantia_path = upload_file($_FILES['archivo_garantia']['tmp_name'][$i], 'garantias');
-            $orden_path = upload_file($_FILES['archivo_orden']['tmp_name'][$i], 'ordenes');
-            $factura_path = upload_file($_FILES['archivo_factura']['tmp_name'][$i], 'facturas');
-
-            // Insertar garantía
-            $fecha_fin = date('Y-m-d', strtotime($_POST['fecha_garantia'][$i] . ' +1 year'));
-            $sql_garantia = "INSERT INTO garantia (id_producto_codigo, garantia, fecha_garantia, fecha_fin_garantia, archivo_pdf) 
-                             VALUES ('{$id_producto_codigo}', '{$db->escape($_POST['garantia'][$i])}', 
-                                     '{$db->escape($_POST['fecha_garantia'][$i])}', '{$fecha_fin}', '{$garantia_path}')";
-            $db->query($sql_garantia);
-
-            // Insertar orden de compra
-            $sql_orden = "INSERT INTO orden_compra (id_solicitudCompra, id_producto_codigo, archivo_pdf) 
-                          VALUES ('{$id_solicitud}', '{$id_producto_codigo}', '{$orden_path}')";
-            $db->query($sql_orden);
-
-            // Insertar factura
-            $db->query("INSERT INTO factura (id_producto_codigo, archivo_pdf) VALUES ('{$id_producto_codigo}', '{$factura_path}')");
+        // Verificar si el producto ya tiene una cantidad inicial
+        $producto = $db->query("SELECT cantidad FROM producto WHERE id_producto = {$id_producto}")->fetch_assoc();
+        if ($producto['cantidad'] == 0) {
+            // Si la cantidad es 0, actualizar con la cantidad recibida
+            $db->query("UPDATE producto SET cantidad = {$cantidad}, visible = 1 WHERE id_producto = {$id_producto}");
+        } else {
+            // Si ya tiene una cantidad, no modificarla
+            $db->query("UPDATE producto SET visible = 1 WHERE id_producto = {$id_producto}");
         }
-
-        // Actualizar inventario
-        $db->query("UPDATE producto SET cantidad = cantidad + {$cantidad} WHERE id_producto = {$id_producto}");
 
         // Cambiar estado de la solicitud
         $db->query("UPDATE solicitud_compra SET id_estado = 2, fecha_recibido = NOW() WHERE id_solicitudCompra = {$id_solicitud}");
 
         $db->commit();
-        $session->msg('s', 'Recepción procesada correctamente.');
+        $session->msg('s', 'Recepción procesada correctamente. La cantidad ha sido actualizada en el inventario y el producto está visible.');
         redirect('lista_pedidos.php');
 
     } catch (Exception $e) {
@@ -151,8 +115,16 @@ include_once('layouts/header.php');
                                 </div>
                                 <div class="form-group">
                                     <label>Archivo de Garantía (PDF):</label>
-                                    <input type="file" class="form-control" name="archivo_garantia[]" accept="application/pdf" required>
+                                    <input type="file" class="form-control" name="archivo_garantia[]" accept="application/pdf" required onchange="showFileName(this)">
+                                    <input type="text" class="form-control mt-2" name="nombre_archivo_garantia[]" readonly>
                                 </div>
+                                <script>
+                                    function showFileName(input) {
+                                        var fileName = input.files[0].name;
+                                        var textInput = input.nextElementSibling;
+                                        textInput.value = fileName;
+                                    }
+                                </script>
                                 
                                 <div class="form-group">
                                     <label>Número orden de compra</label>
@@ -160,11 +132,13 @@ include_once('layouts/header.php');
                                 </div>
                                 <div class="form-group">
                                     <label>Orden de Compra (PDF):</label>
-                                    <input type="file" class="form-control" name="archivo_orden[]" accept="application/pdf" required>
+                                    <input type="file" class="form-control" name="archivo_orden[]" accept="application/pdf" required onchange="showFileName(this)">
+                                    <input type="text" class="form-control mt-2" name="nombre_archivo_orden[]" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label>Factura (PDF):</label>
-                                    <input type="file" class="form-control" name="archivo_factura[]" accept="application/pdf" required>
+                                    <input type="file" class="form-control" name="archivo_factura[]" accept="application/pdf" required onchange="showFileName(this)">
+                                    <input type="text" class="form-control mt-2" name="nombre_archivo_factura[]" readonly>
                                 </div>
                             </div>
                         </div>

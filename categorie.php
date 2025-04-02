@@ -31,28 +31,36 @@ if (isset($_POST['add_cat'])) {
     $cat_categoria = remove_junk($db->escape($_POST['categoria']));
     $cubiculos_asignados = isset($_POST['cubiculos']) ? $_POST['cubiculos'] : [];
 
-    if (empty($errors)) {
-        // Insertar la categoría
-        $sql = "INSERT INTO categoria (categoria) VALUES ('{$cat_categoria}')";
-        if ($db->query($sql)) {
-            $id_categoria = $db->insert_id(); // Obtener el ID de la categoría recién insertada
+    // Verificar si la categoría ya existe
+    $sql = "SELECT * FROM categoria WHERE categoria = '{$cat_categoria}'";
+    $result = $db->query($sql);
+    if ($db->num_rows($result) > 0) {
+        $session->msg("d", "La categoría '{$cat_categoria}' ya existe.");
+        redirect('categorie.php', false);
+    } else {
+        if (empty($errors)) {
+            // Insertar la categoría
+            $sql = "INSERT INTO categoria (categoria) VALUES ('{$cat_categoria}')";
+            if ($db->query($sql)) {
+                $id_categoria = $db->insert_id(); // Obtener el ID de la categoría recién insertada
 
-            // Asignar cubículos a la categoría
-            if (!empty($cubiculos_asignados)) {
-                foreach ($cubiculos_asignados as $id_cubiculo) {
-                    $db->query("INSERT INTO categoria_cubiculo (id_categoria, id_cubiculo) VALUES ({$id_categoria}, {$id_cubiculo})");
+                // Asignar cubículos a la categoría
+                if (!empty($cubiculos_asignados)) {
+                    foreach ($cubiculos_asignados as $id_cubiculo) {
+                        $db->query("INSERT INTO categoria_cubiculo (id_categoria, id_cubiculo) VALUES ({$id_categoria}, {$id_cubiculo})");
+                    }
                 }
-            }
 
-            $session->msg("s", "Categoría agregada exitosamente.");
-            redirect('categorie.php', false);
+                $session->msg("s", "Categoría agregada exitosamente.");
+                redirect('categorie.php', false);
+            } else {
+                $session->msg("d", "Lo siento, registro falló.");
+                redirect('categorie.php', false);
+            }
         } else {
-            $session->msg("d", "Lo siento, registro falló.");
+            $session->msg("d", $errors);
             redirect('categorie.php', false);
         }
-    } else {
-        $session->msg("d", $errors);
-        redirect('categorie.php', false);
     }
 }
 
@@ -178,7 +186,7 @@ if (isset($_POST['update_cubiculos'])) {
                                                     <?php foreach ($all_cubiculos as $cubiculo): ?>
                                                         <div>
                                                             <input type="checkbox" name="cubiculos[]" value="<?php echo $cubiculo['id_cubiculo']; ?>"
-                                                                <?php if (in_array($cubiculo, $cubiculos_asignados)) echo "checked"; ?>>
+                                                                <?php if (in_array($cubiculo['id_cubiculo'], array_column($cubiculos_asignados, 'id_cubiculo'))) echo "checked"; ?>>
                                                             <?php echo $cubiculo['cubiculo']; ?>
                                                         </div>
                                                     <?php endforeach; ?>

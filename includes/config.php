@@ -1,13 +1,13 @@
 <?php
 /*
 |--------------------------------------------------------------------------
-| OWSA-INV V2
+| INVENTARIO BODEGA IT
 |--------------------------------------------------------------------------
-| Author: Siamon Hasan
-| Project Name: OSWA-INV
+| Author: LUIS CACERES TERCERO
+| Project Name: INVENTARIO BODEGA IT
 | Version: v2
-| Offcial page: http://oswapp.com/
-| facebook Page: https://www.facebook.com/oswapp
+| 
+| 
 |
 |
 |
